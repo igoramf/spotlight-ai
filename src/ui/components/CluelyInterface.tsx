@@ -45,8 +45,8 @@ const CluelyInterface = () => {
                   aria-label={isRecording ? 'Stop recording' : 'Start recording'}
                 >
                   <Mic className={isRecording ? 'text-red-500 animate-pulse' : ''} />
-                  <span className="font-mono tabular-nums w-12 text-base">{timer}</span>
                 </Button>
+                <span className="font-mono tabular-nums w-12 text-base">{timer}</span>
               </div>
               
               <div className="flex items-center gap-2">
