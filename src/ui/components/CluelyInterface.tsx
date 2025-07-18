@@ -30,8 +30,8 @@ const CluelyInterface = () => {
   }, [recordingSeconds]);
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-2xl mx-auto space-y-4">
+    <div className="">
+      <div className="mx-auto space-y-4">
         {/* Header Control Bar */}
         <Card className="shadow-sm bg-white/80 backdrop-blur-sm">
           <CardContent className="p-4">

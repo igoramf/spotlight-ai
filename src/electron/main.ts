@@ -35,6 +35,8 @@ function registerMoveShortcuts(win: BrowserWindow) {
 app.on('ready', () => {
   mainWindow = new BrowserWindow({
     frame: false,
+    width: 800,
+    height: 465,
     titleBarStyle: 'hidden',
     transparent: true,
     backgroundColor: '#00000000',
