@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, globalShortcut } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { isDev } from './util.js';
@@ -6,8 +6,10 @@ import { isDev } from './util.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+let mainWindow: BrowserWindow | null = null;
+
 app.on('ready', () => {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     frame: false,
     titleBarStyle: 'hidden',
     transparent: true,
@@ -24,9 +26,20 @@ app.on('ready', () => {
   } else {
     const indexPath = path.join(__dirname, '../dist-react/index.html');
     console.log('Loading file:', indexPath);
-    
     mainWindow.loadFile(indexPath);
   }
+
+  globalShortcut.register('Control+X', () => {
+    if (!mainWindow) return;
+  
+    const visible = mainWindow.isVisible();
+  
+    if (visible) {
+      mainWindow.hide();
+    } else {
+      mainWindow.show();
+    }
+  });
 
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
     console.error('Failed to load:', errorCode, errorDescription);
@@ -35,6 +48,10 @@ app.on('ready', () => {
   mainWindow.webContents.on('console-message', (event, level, message) => {
     console.log('Console:', level, message);
   });
+});
+
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
 });
 
 app.on('window-all-closed', () => {
