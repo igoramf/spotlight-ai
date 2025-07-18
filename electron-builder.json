@@ -1,0 +1,15 @@
+{
+    "appId": "com.igoramf.spotlight-ai",
+    "files": ["dist-electron", "dist-react"],
+    "icon": "./cluely-icon.png",
+    "mac": {
+        "target": ["dmg"]
+    },
+    "win": {
+        "target": ["portable", "msi"]
+    },
+    "linux": {
+        "target": ["AppImage"],
+        "category": "Utility"
+    }
+}

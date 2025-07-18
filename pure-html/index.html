@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cluely AI Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <!-- Header Control Bar -->
+            <div class="card">
+                <div class="card-content">
+                    <div class="header-row">
+                        <div class="header-left">
+                            <div class="timer-section">
+                                <div class="ai-badge">
+                                    <span class="ai-text">AI</span>
+                                </div>
+                                <span class="timer" id="timer">00:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="header-right">
+                            <button class="btn btn-outline">
+                                Ask AI
+                                <span class="kbd">⌘</span>
+                            </button>
+                            
+                            <button class="btn btn-outline" id="toggleBtn">
+                                <svg class="icon" id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <svg class="icon hidden" id="eyeOffIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                                    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                                    <line x1="2" x2="22" y1="2" y2="22"/>
+                                </svg>
+                                Show/Hide
+                                <span class="kbd">⌘</span>
+                                <span class="kbd">\</span>
+                            </button>
+                            
+                            <button class="btn btn-ghost">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Response Section -->
+            <div class="card">
+                <div class="card-content response-content">
+                    <div class="response-header">
+                        <div class="response-indicator">
+                            <div class="response-dot"></div>
+                        </div>
+                        <h2 class="response-title">AI Response</h2>
+                    </div>
+                    
+                    <div class="response-text">
+                        <p>
+                            I can see you're currently viewing the Cluely website homepage. The AI assistant that monitors 
+                            your screen and audio to provide contextual help before you even ask for it.
+                        </p>
+                        
+                        <div class="section">
+                            <h3 class="section-title">What is Cluely?</h3>
+                            <p class="section-content">
+                                Cluely is a proactive AI assistant. Unlike traditional AI chatbots where you need to actively ask 
+                                questions, Cluely runs in the background, continuously observing your screen content and 
+                                listening to your audio to provide relevant assistance in real-time.
+                            </p>
+                        </div>
+                        
+                        <div class="section">
+                            <h4 class="feature-title">Features:</h4>
+                            <div class="feature-list">
+                                <div class="feature-item">
+                                    <span class="feature-number">1.</span>
+                                    <span><strong>Screen monitoring:</strong> Cluely can see what's on your screen and understand the context</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-number">2.</span>
+                                    <span><strong>Audio listening:</strong> It processes your calls and conversations</span>
+                                </div>
+                                <div class="feature-item">
+                                    <span class="feature-number">3.</span>
+                                    <span><strong>Proactive assistance:</strong> Rather than waiting for questions, it anticipates what you might need</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
