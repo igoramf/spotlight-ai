@@ -1,25 +1,33 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Settings, Eye, EyeOff } from 'lucide-react';
+import { Settings, Eye, EyeOff, Mic } from 'lucide-react';
 
 const CluelyInterface = () => {
   const [timer, setTimer] = useState('00:00');
-  const [date, setDate] = useState('');
   const [showHide, setShowHide] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
 
   useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date();
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-      setTimer(`${minutes}:${seconds}`);
-      setDate(now.toLocaleDateString('pt-BR'));
+    let interval: NodeJS.Timeout | null = null;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setRecordingSeconds(0);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
     };
-    updateDateTime();
-    const interval = setInterval(updateDateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  }, [isRecording]);
+
+  useEffect(() => {
+    const minutes = String(Math.floor(recordingSeconds / 60)).padStart(2, '0');
+    const seconds = String(recordingSeconds % 60).padStart(2, '0');
+    setTimer(`${minutes}:${seconds}`);
+  }, [recordingSeconds]);
 
   return (
     <div className="min-h-screen p-6">
@@ -29,12 +37,16 @@ const CluelyInterface = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                    <span className="text-primary-foreground text-xs font-bold">AI</span>
-                  </div>
-                  <span className="font-mono text-lg">{date}</span>
-                </div>
+                <Button
+                  variant={isRecording ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex items-center gap-2"
+                  onClick={() => setIsRecording((r) => !r)}
+                  aria-label={isRecording ? 'Stop recording' : 'Start recording'}
+                >
+                  <Mic className={isRecording ? 'text-red-500 animate-pulse' : ''} />
+                  <span className="font-mono tabular-nums w-12 text-base">{timer}</span>
+                </Button>
               </div>
               
               <div className="flex items-center gap-2">
