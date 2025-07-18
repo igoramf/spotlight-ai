@@ -8,6 +8,30 @@ const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null = null;
 
+function registerMoveShortcuts(win: BrowserWindow) {
+  const step = 50;
+
+  globalShortcut.register('Control+Right', () => {
+    const bounds = win.getBounds();
+    win.setBounds({ ...bounds, x: bounds.x + step });
+  });
+
+  globalShortcut.register('Control+Left', () => {
+    const bounds = win.getBounds();
+    win.setBounds({ ...bounds, x: bounds.x - step });
+  });
+
+  globalShortcut.register('Control+Up', () => {
+    const bounds = win.getBounds();
+    win.setBounds({ ...bounds, y: bounds.y - step });
+  });
+
+  globalShortcut.register('Control+Down', () => {
+    const bounds = win.getBounds();
+    win.setBounds({ ...bounds, y: bounds.y + step });
+  });
+}
+
 app.on('ready', () => {
   mainWindow = new BrowserWindow({
     frame: false,
@@ -31,15 +55,15 @@ app.on('ready', () => {
 
   globalShortcut.register('Control+X', () => {
     if (!mainWindow) return;
-  
     const visible = mainWindow.isVisible();
-  
     if (visible) {
       mainWindow.hide();
     } else {
       mainWindow.show();
     }
   });
+
+  registerMoveShortcuts(mainWindow);
 
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
     console.error('Failed to load:', errorCode, errorDescription);

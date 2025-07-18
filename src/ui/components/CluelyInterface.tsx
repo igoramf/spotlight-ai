@@ -49,7 +49,7 @@ const CluelyInterface = () => {
                   {showHide ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
                   Show/Hide
                   <span className="ml-2 px-1.5 py-0.5 bg-muted rounded text-xs">⌘</span>
-                  <span className="ml-1 px-1.5 py-0.5 bg-muted rounded text-xs">\</span>
+                  <span className="ml-1 px-1.5 py-0.5 bg-muted rounded text-xs">X</span>
                 </Button>
                 
                 <Button variant="ghost" size="sm">
