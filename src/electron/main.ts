@@ -49,7 +49,6 @@ app.on('ready', () => {
     mainWindow.loadURL('http://localhost:5123');
   } else {
     const indexPath = path.join(__dirname, '../dist-react/index.html');
-    console.log('Loading file:', indexPath);
     mainWindow.loadFile(indexPath);
   }
 

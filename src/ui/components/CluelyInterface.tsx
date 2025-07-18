@@ -5,16 +5,19 @@ import { Settings, Eye, EyeOff } from 'lucide-react';
 
 const CluelyInterface = () => {
   const [timer, setTimer] = useState('00:00');
+  const [date, setDate] = useState('');
   const [showHide, setShowHide] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const updateDateTime = () => {
       const now = new Date();
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
       setTimer(`${minutes}:${seconds}`);
-    }, 1000);
-
+      setDate(now.toLocaleDateString('pt-BR'));
+    };
+    updateDateTime();
+    const interval = setInterval(updateDateTime, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -30,7 +33,7 @@ const CluelyInterface = () => {
                   <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
                     <span className="text-primary-foreground text-xs font-bold">AI</span>
                   </div>
-                  <span className="font-mono text-lg">{timer}</span>
+                  <span className="font-mono text-lg">{date}</span>
                 </div>
               </div>
               
@@ -38,6 +41,7 @@ const CluelyInterface = () => {
                 <Button variant="outline" size="sm" className="text-muted-foreground">
                   Ask AI
                   <span className="ml-2 px-1.5 py-0.5 bg-muted rounded text-xs">⌘</span>
+                  <span className="ml-1 px-1.5 py-0.5 bg-muted rounded text-xs">F</span>
                 </Button>
                 
                 <Button 
