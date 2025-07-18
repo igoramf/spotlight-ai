@@ -8,6 +8,10 @@ const __dirname = path.dirname(__filename);
 
 app.on('ready', () => {
   const mainWindow = new BrowserWindow({
+    frame: false,
+    titleBarStyle: 'hidden',
+    transparent: true,
+    backgroundColor: '#00000000',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

@@ -19,10 +19,10 @@ const CluelyInterface = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-2xl mx-auto space-y-4">
         {/* Header Control Bar */}
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-white/80 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -61,7 +61,7 @@ const CluelyInterface = () => {
         </Card>
 
         {/* AI Response Section */}
-        <Card className="shadow-sm">
+        <Card className="shadow-sm bg-white/80 backdrop-blur-sm">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex items-center justify-center">
