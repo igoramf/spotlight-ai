@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -14,6 +14,13 @@ const InputCustom = ({ onSendMessage, isLoading, isChatVisible }: InputCustomPro
   const [message, setMessage] = useState("");
   const [isSmart, setIsSmart] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current && !isLoading) {
+      inputRef.current.focus();
+    }
+  }, [isLoading]);
 
   const handleSendMessage = () => {
     if (message.trim()) {
@@ -34,6 +41,7 @@ const InputCustom = ({ onSendMessage, isLoading, isChatVisible }: InputCustomPro
         {/* Input field with attached send button */}
         <div className="relative w-[700px]">
           <Input
+            ref={inputRef}
             placeholder="Ask about your screen"
             className={`shadow-sm bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none pr-32 ${isChatVisible ? 'rounded-t-none' : ''}`}
             value={message}
