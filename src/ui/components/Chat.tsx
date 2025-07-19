@@ -6,6 +6,8 @@ import { Badge } from './ui/badge';
 import { Conversation } from '../types';
 import { useToast } from '../hooks/use-toast';
 import { Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
+import { AzureOpenAIClient } from '../../services/openai/azureClient';
+import { buildPrompt } from '../../services/openai/promptBuilder';
 
 const AnimatedDots = () => {
   return (
@@ -22,6 +24,7 @@ interface ChatProps {
   conversation: Conversation;
   onNewConversation: () => void;
   onSendMessage: (message: string, response: string) => void;
+  conversation_history: Conversation[];
 }
 
 const Chat = ({
@@ -29,6 +32,7 @@ const Chat = ({
   conversation,
   onNewConversation,
   onSendMessage,
+  conversation_history,
 }: ChatProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<string | null>(
@@ -62,19 +66,26 @@ const Chat = ({
     }
   };
 
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = async (message: string) => {
     setCurrentQuestion(message);
     setIsLoading(true);
     setCurrentResponse(null);
 
-    setTimeout(() => {
-      const newResponse = `- Neymar is a Brazilian professional football (soccer) player.
-- Full name: Neymar da Silva Santos Júnior
-- Widely known for his skills, dribbling, and goal-scoring ability
-- Played for clubs like Santos (Brazil), Barcelona (Spain), Paris Saint-Germain (France), and Al Hilal (Saudi Arabia)
-- Key player for the Brazil national team`;
+    setTimeout(async () => {
+      const client = new AzureOpenAIClient("gpt-4.1");
+      const prompt = await buildPrompt({
+        conversation_history: conversation_history
+          .filter((c) => c.question && c.response)
+          .map((c) => `USER: ${c.question}\nASSISTANT: ${c.response}`)
+          .join('\n\n') + (conversation_history.length > 0 ? '\n\n' : '') + `USER: ${message}`,
+        custom_prompt: "Responda sempre em pt-br",
+      });
+      const newResponse = await client.createChatCompletion(prompt);
+      console.log(newResponse);
       setCurrentResponse(newResponse);
-      onSendMessage(message, newResponse);
+      if (newResponse) {
+        onSendMessage(message, newResponse);
+      }
       setIsLoading(false);
     }, 2000);
   };

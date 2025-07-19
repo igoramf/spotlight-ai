@@ -25,6 +25,7 @@ export class AzureOpenAIClient {
       baseURL: `${endpoint}/openai/deployments/${this.deploymentName}`,
       defaultQuery: { "api-version": apiVersion },
       defaultHeaders: { "api-key": azureApiKey },
+      dangerouslyAllowBrowser: true,
     });
   }
 

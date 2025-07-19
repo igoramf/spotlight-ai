@@ -163,6 +163,7 @@ const CluelyInterface = () => {
             <Chat
               setShowChat={setShowChat}
               conversation={conversations[activeConversationIndex]}
+              conversation_history={conversations}
               onNewConversation={handleNewConversation}
               onSendMessage={handleSendMessage}
             />
