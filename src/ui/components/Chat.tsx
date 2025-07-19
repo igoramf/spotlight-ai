@@ -7,9 +7,9 @@ import { Badge } from "./ui/badge";
 const AnimatedDots = () => {
   return (
     <div className="flex space-x-1">
-      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+      <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+      <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+      <div className="w-1 h-1 bg-muted-foreground rounded-full animate-bounce"></div>
     </div>
   );
 };
@@ -50,7 +50,7 @@ const Chat = ({ setShowChat }: ChatProps) => {
           <CardContent className="p-4">
             <div className="flex justify-between items-start">
                 <div className="text-xs font-medium">
-                    <span className="text-gray-400">AI Response</span>
+                    <span className="text-gray-400">{isLoading ? "Thinking..." : "AI Response"}</span>
                 </div>
                 <div className="flex justify-end items-center gap-2">
                     <Badge variant="outline" className="text-sm text-white font-medium bg-gray-700">{question}</Badge>
