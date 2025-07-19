@@ -22,6 +22,8 @@ const Chat = ({ setShowChat }: ChatProps) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<{ text: string; isUser: boolean }>>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSmart, setIsSmart] = useState(false);
+  const [isSearch, setIsSearch] = useState(false);
 
   const handleSendMessage = () => {
     if (message.trim()) {
@@ -60,21 +62,21 @@ const Chat = ({ setShowChat }: ChatProps) => {
 
           <div className="absolute right-1.5 inset-y-0 flex items-center gap-3 text-xs">
             <Button
-              variant="outline"
+              variant={isSearch ? "default" : "outline"}
               size="xs"
               className="h-6 px-1.5 text-gray-300 border-gray-600 hover:bg-gray-800 rounded-full text-xs"
-              onClick={handleSendMessage}
+              onClick={() => setIsSearch(!isSearch)}
             >
-              <GlobeIcon className="w-3 h-3 mr-1" />
+              <GlobeIcon className="w-3 h-3 " />
               Search
             </Button>
             <Button
-              variant="outline"
+              variant={isSmart ? "default" : "outline"}
               size="xs"
               className="h-6 px-1.5 text-gray-300 border-gray-600 hover:bg-gray-800 rounded-full text-xs"
-              onClick={handleSendMessage}
+              onClick={() => setIsSmart(!isSmart)}
             >
-              <BrainIcon className="w-3 h-3 mr-1" />
+              <BrainIcon className="w-3 h-3" />
               Smart
             </Button>
 
