@@ -66,7 +66,7 @@ const InputCustom = ({ onSendMessage, isLoading, isChatVisible }: InputCustomPro
 
             <button disabled={isLoading} onClick={handleSendMessage}>
               <span className="flex items-center gap-0.5 text-gray-300 text-xs">
-                Submit <ArrowRight className="w-3 h-3" />
+                Submit <span className="text-md">↵</span>
               </span>
             </button>
           </div>
