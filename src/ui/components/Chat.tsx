@@ -4,6 +4,8 @@ import InputCustom from './InputCustom';
 import { Copy, XCircleIcon } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Conversation } from '../types';
+import { useToast } from '../hooks/use-toast';
+import { Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
 
 const AnimatedDots = () => {
   return (
@@ -41,6 +43,25 @@ const Chat = ({
     setCurrentResponse(conversation?.response || null);
   }, [conversation]);
 
+  const handleCopy = async () => {
+    if (currentResponse) {
+      try {
+        await navigator.clipboard.writeText(currentResponse);
+        // toast({
+        //   title: "Copiado!",
+        //   description: "Resposta copiada para a área de transferência.",
+        // });
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+        // toast({
+        //   title: "Erro",
+        //   description: "Não foi possível copiar o texto.",
+        //   variant: "destructive",
+        // });
+      }
+    }
+  };
+
   const handleSendMessage = (message: string) => {
     setCurrentQuestion(message);
     setIsLoading(true);
@@ -77,9 +98,20 @@ const Chat = ({
                   {currentQuestion}
                 </Badge>
                 <div className="flex items-center gap-2">
-                  <button className="text-gray-400 hover:text-white">
-                    <Copy size={16} />
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={handleCopy}
+                        disabled={!currentResponse || isLoading}
+                        className="text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Copy size={16} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs">Copy Answer</p>
+                    </TooltipContent>
+                  </Tooltip>
                   <button
                     onClick={onNewConversation}
                     className="text-gray-400 hover:text-white"
