@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist-test"
+  },
+  "include": [
+    "src/services/openai/test.ts",
+    "src/services/openai/azureClient.ts",
+    "src/services/openai/promptBuilder.ts"
+  ]
+} 

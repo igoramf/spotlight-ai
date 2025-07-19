@@ -12,6 +12,7 @@ dist
 dist-ssr
 dist-react
 dist-electron
+dist-test
 *.local
 
 # Editor directories and files
@@ -24,3 +25,4 @@ dist-electron
 *.njsproj
 *.sln
 *.sw?
+.env
