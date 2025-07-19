@@ -8,7 +8,6 @@ interface ChatProps {
   setShowChat: (show: boolean) => void;
 }
 
-// Animated dots component
 const AnimatedDots = () => {
   return (
     <div className="flex space-x-1">

@@ -33,7 +33,7 @@ const CluelyInterface = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.shiftKey && event.key === 'F') {
+      if (event.ctrlKey && event.key === 'f') {
         event.preventDefault();
         setShowChat(true);
       }
