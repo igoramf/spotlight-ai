@@ -17,26 +17,20 @@ const CluelyInterface = () => {
   const [activeConversationIndex, setActiveConversationIndex] = useState(0);
 
   const handleNewConversation = () => {
-    console.log('🆕 Creating new conversation');
     const newConversation: Conversation = {
       id: conversations.length,
       question: null,
       response: null,
     };
-    console.log('📝 New conversation:', newConversation);
     setConversations([...conversations, newConversation]);
     setActiveConversationIndex(conversations.length);
-    console.log('📊 Updated conversations count:', conversations.length + 1);
   };
 
   const handleSendMessage = (message: string, response: string) => {
-    console.log('📨 handleSendMessage called:', { message, response, activeIndex: activeConversationIndex });
     const updatedConversations = [...conversations];
     const currentConversation = updatedConversations[activeConversationIndex];
     
-    // Se a conversa atual já tem conteúdo, criar uma nova conversa
     if (currentConversation.question !== null) {
-      console.log('🔄 Current conversation has content, creating new one');
       const newConversation: Conversation = {
         id: conversations.length,
         question: message,
@@ -44,10 +38,7 @@ const CluelyInterface = () => {
       };
       updatedConversations.push(newConversation);
       setActiveConversationIndex(conversations.length);
-      console.log('✨ Created new conversation with content');
     } else {
-      // Atualizar a conversa atual
-      console.log('📝 Updating current conversation');
       updatedConversations[activeConversationIndex] = {
         ...updatedConversations[activeConversationIndex],
         question: message,
@@ -56,23 +47,18 @@ const CluelyInterface = () => {
     }
     
     setConversations(updatedConversations);
-    console.log('📊 Final conversations:', updatedConversations);
   };
 
   const handlePreviousConversation = () => {
-    console.log('🔄 handlePreviousConversation called');
     setActiveConversationIndex((prev) => {
       const newIndex = Math.max(0, prev - 1);
-      console.log(`📍 Index changed: ${prev} → ${newIndex}`);
       return newIndex;
     });
   };
 
   const handleNextConversation = () => {
-    console.log('🔄 handleNextConversation called');
     setActiveConversationIndex((prev) => {
       const newIndex = Math.min(conversations.length - 1, prev + 1);
-      console.log(`📍 Index changed: ${prev} → ${newIndex}`);
       return newIndex;
     });
   };
@@ -99,40 +85,25 @@ const CluelyInterface = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      console.log('🎯 Key event:', event.key, 'Ctrl:', event.ctrlKey);
-      console.log('📊 State:', { 
-        conversationsLength: conversations.length, 
-        activeIndex: activeConversationIndex 
-      });
       
       if (event.ctrlKey && event.key === 'f') {
         event.preventDefault();
         setShowChat(true);
       } else if (event.ctrlKey && event.key === 'ArrowUp') {
         event.preventDefault();
-        console.log('⬆️ Arrow Up pressed');
         if (conversations.length > 1) {
-          console.log('✅ Navigating to previous conversation');
           handlePreviousConversation();
-        } else {
-          console.log('❌ Not enough conversations (need > 1)');
-        }
+        } 
       } else if (event.ctrlKey && event.key === 'ArrowDown') {
         event.preventDefault();
-        console.log('⬇️ Arrow Down pressed');
         if (conversations.length > 1) {
-          console.log('✅ Navigating to next conversation');
           handleNextConversation();
-        } else {
-          console.log('❌ Not enough conversations (need > 1)');
         }
       }
     };
 
-    console.log('🔧 Setting up keyboard listener');
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      console.log('🧹 Cleaning up keyboard listener');
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [conversations, handlePreviousConversation, handleNextConversation]);
