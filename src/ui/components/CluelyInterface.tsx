@@ -48,13 +48,13 @@ const CluelyInterface = () => {
       <div className="flex flex-col items-center">
         {/* Header Control Bar */}
         <Card className="shadow-sm bg-gray-900/90 backdrop-blur-sm inline-block border-gray-700">
-          <CardContent className="p-2">
+          <CardContent className="p-1">
             <div className="flex items-center justify-between">       
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <Button
                   variant={isRecording ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex items-center gap-2 text-gray-300 border-gray-600"
+                  size="xs"
+                  className="flex items-center gap-1 text-gray-300 border-gray-600 h-8 px-2"
                   onClick={() => setIsRecording((r) => !r)}
                   aria-label={isRecording ? 'Stop recording' : 'Start recording'}
                 >
@@ -63,8 +63,8 @@ const CluelyInterface = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  size="sm" 
-                  className="text-gray-300 border-gray-600 hover:bg-gray-800"
+                  size="xs" 
+                  className="text-gray-300 border-gray-600 hover:bg-gray-800 h-8 px-2"
                   onClick={() => setShowChat(true)}
                 >
                   Ask AI
@@ -74,9 +74,9 @@ const CluelyInterface = () => {
                 
                 <Button 
                   variant="outline" 
-                  size="sm" 
+                  size="xs" 
                   onClick={() => setShowHide(!showHide)}
-                  className="text-gray-300 border-gray-600 hover:bg-gray-800"
+                  className="text-gray-300 border-gray-600 hover:bg-gray-800 h-8 px-2"
                 >
                   {showHide ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
                   Show/Hide

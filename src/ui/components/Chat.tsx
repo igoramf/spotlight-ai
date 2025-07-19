@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { X, Send } from "lucide-react";
+import { X, Send, Search, GlobeIcon, BrainIcon, ArrowRight } from "lucide-react";
 
 interface ChatProps {
   setShowChat: (show: boolean) => void;
@@ -48,13 +48,41 @@ const Chat = ({ setShowChat }: ChatProps) => {
 
   return (
     <div className="flex flex-col items-center">
-        <Input
+        {/* Input field with attached send button */}
+        <div className="relative w-[700px]">
+          <Input
             placeholder="Ask about your screen"
-            className="shadow-sm bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white w-[700px] focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+            className="shadow-sm bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none pr-32"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
-        />
+          />
+
+          <div className="absolute right-1.5 inset-y-0 flex items-center gap-3 text-xs">
+            <Button
+              variant="outline"
+              size="xs"
+              className="h-6 px-1.5 text-gray-300 border-gray-600 hover:bg-gray-800 rounded-full text-xs"
+              onClick={handleSendMessage}
+            >
+              <GlobeIcon className="w-3 h-3 mr-1" />
+              Search
+            </Button>
+            <Button
+              variant="outline"
+              size="xs"
+              className="h-6 px-1.5 text-gray-300 border-gray-600 hover:bg-gray-800 rounded-full text-xs"
+              onClick={handleSendMessage}
+            >
+              <BrainIcon className="w-3 h-3 mr-1" />
+              Smart
+            </Button>
+
+            <span className="flex items-center gap-0.5 text-gray-300 text-xs">
+              Submit <ArrowRight className="w-3 h-3" />
+            </span>
+          </div>
+        </div>
     </div>
   );
 };
