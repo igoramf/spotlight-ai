@@ -44,9 +44,9 @@ const Chat = ({ setShowChat }: ChatProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 w-[700px]">
+    <div className="flex flex-col items-center w-[700px]">
       {question && (
-        <Card className="w-full bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white">
+        <Card className="w-full bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white rounded-b-none">
           <CardContent className="p-4">
             <div className="flex justify-between items-start">
                 <div className="text-xs font-medium">
@@ -80,9 +80,10 @@ const Chat = ({ setShowChat }: ChatProps) => {
               </div>
             )}
           </CardContent>
+          <div className="border-b border-gray-700 "></div>
         </Card>
       )}
-      <InputCustom onSendMessage={handleSendMessage} isLoading={isLoading} />
+      <InputCustom onSendMessage={handleSendMessage} isLoading={isLoading} isChatVisible={!!question} />
     </div>
   );
 };

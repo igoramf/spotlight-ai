@@ -7,9 +7,10 @@ import { X, Send, Search, GlobeIcon, BrainIcon, ArrowRight } from "lucide-react"
 interface InputCustomProps {
     onSendMessage: (message: string) => void;
     isLoading: boolean;
+    isChatVisible?: boolean;
   }
 
-const InputCustom = ({ onSendMessage, isLoading }: InputCustomProps) => {
+const InputCustom = ({ onSendMessage, isLoading, isChatVisible }: InputCustomProps) => {
   const [message, setMessage] = useState("");
   const [isSmart, setIsSmart] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
@@ -34,7 +35,7 @@ const InputCustom = ({ onSendMessage, isLoading }: InputCustomProps) => {
         <div className="relative w-[700px]">
           <Input
             placeholder="Ask about your screen"
-            className="shadow-sm bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none pr-32"
+            className={`shadow-sm bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none pr-32 ${isChatVisible ? 'rounded-t-none' : ''}`}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}
