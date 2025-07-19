@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { Settings, Eye, EyeOff, Mic } from 'lucide-react';
+import { Settings, Eye, EyeOff, Mic, AudioLinesIcon } from 'lucide-react';
 import Chat from './Chat';
 
 const CluelyInterface = () => {
@@ -47,44 +47,45 @@ const CluelyInterface = () => {
     <div className="">
       <div className="flex flex-col items-center">
         {/* Header Control Bar */}
-        <Card className="shadow-sm bg-white/80 backdrop-blur-sm inline-block">
+        <Card className="shadow-sm bg-gray-900/90 backdrop-blur-sm inline-block border-gray-700">
           <CardContent className="p-2">
             <div className="flex items-center justify-between">       
               <div className="flex items-center gap-2">
                 <Button
                   variant={isRecording ? 'default' : 'outline'}
                   size="sm"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 text-gray-300 border-gray-600"
                   onClick={() => setIsRecording((r) => !r)}
                   aria-label={isRecording ? 'Stop recording' : 'Start recording'}
                 >
-                  <Mic className={isRecording ? 'text-red-500 animate-pulse' : ''} />
+                  Listen
+                  <AudioLinesIcon className={isRecording ? 'text-red-500 animate-pulse' : 'text-gray-300 border-gray-600'} />
                 </Button>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="text-muted-foreground"
+                  className="text-gray-300 border-gray-600 hover:bg-gray-800"
                   onClick={() => setShowChat(true)}
                 >
                   Ask AI
-                  <span className="ml-2 px-1.5 py-0.5 bg-muted rounded text-xs">⌘</span>
-                  <span className="ml-1 px-1.5 py-0.5 bg-muted rounded text-xs">F</span>
+                  <span className="ml-2 px-1.5 py-0.5 bg-gray-700 rounded text-xs text-gray-300">⌘</span>
+                  <span className="ml-1 px-1.5 py-0.5 bg-gray-700 rounded text-xs text-gray-300">F</span>
                 </Button>
                 
                 <Button 
                   variant="outline" 
                   size="sm" 
                   onClick={() => setShowHide(!showHide)}
-                  className="text-muted-foreground"
+                  className="text-gray-300 border-gray-600 hover:bg-gray-800"
                 >
                   {showHide ? <EyeOff className="w-4 h-4 mr-1" /> : <Eye className="w-4 h-4 mr-1" />}
                   Show/Hide
-                  <span className="ml-2 px-1.5 py-0.5 bg-muted rounded text-xs">⌘</span>
-                  <span className="ml-1 px-1.5 py-0.5 bg-muted rounded text-xs">X</span>
+                  <span className="ml-2 px-1.5 py-0.5 bg-gray-700 rounded text-xs text-gray-300">⌘</span>
+                  <span className="ml-1 px-1.5 py-0.5 bg-gray-700 rounded text-xs text-gray-300">X</span>
                 </Button>
                 
-                <Button variant="ghost" size="sm">
-                  <Settings className="w-4 h-4 text-muted-foreground" />
+                <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800">
+                  <Settings className="w-4 h-4" />
                 </Button>
               </div>
             </div>
