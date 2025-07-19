@@ -20,16 +20,6 @@ function registerMoveShortcuts(win: BrowserWindow) {
     const bounds = win.getBounds();
     win.setBounds({ ...bounds, x: bounds.x - step });
   });
-
-  globalShortcut.register('Control+Up', () => {
-    const bounds = win.getBounds();
-    win.setBounds({ ...bounds, y: bounds.y - step });
-  });
-
-  globalShortcut.register('Control+Down', () => {
-    const bounds = win.getBounds();
-    win.setBounds({ ...bounds, y: bounds.y + step });
-  });
 }
 
 app.on('ready', () => {
