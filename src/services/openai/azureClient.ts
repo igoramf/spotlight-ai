@@ -1,9 +1,8 @@
 import OpenAI from "openai";
-import 'dotenv'
 
-const azureApiKey = process.env.VITE_AZURE_OPENAI_API_KEY;
-const endpoint = process.env.VITE_AZURE_BASE_URL;
-const apiVersion = process.env.VITE_AZURE_OPENAI_VERSION;
+const azureApiKey = import.meta.env.VITE_AZURE_OPENAI_API_KEY;
+const endpoint = import.meta.env.VITE_AZURE_BASE_URL;
+const apiVersion = import.meta.env.VITE_AZURE_OPENAI_VERSION;
 
 if (!azureApiKey || !endpoint) {
   throw new Error(
