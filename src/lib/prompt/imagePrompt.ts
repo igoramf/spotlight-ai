@@ -1,0 +1,1 @@
+export const IMAGE_PROMPT = "Based on the image, extract the content that is relevant to use as context to answer the user's question. <user_question> {{user_question}} </user_question>"

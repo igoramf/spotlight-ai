@@ -7,7 +7,7 @@ import { Conversation } from '../types';
 import { useToast } from '../hooks/use-toast';
 import { Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
 import { AzureOpenAIClient } from '../../services/openai/azureClient';
-import { buildPrompt } from '../../services/openai/promptBuilder';
+import { buildPrompt } from '../../lib/prompt/promptBuilder';
 import { cn } from '../lib/utils';
 
 const AnimatedDots = () => {

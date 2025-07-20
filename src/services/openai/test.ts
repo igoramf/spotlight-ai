@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { AzureOpenAIClient } from "./azureClient.js";
-import { buildPrompt } from "./promptBuilder.js";
+import { buildPrompt } from "../../lib/prompt/promptBuilder.js";
 
 const client = new AzureOpenAIClient("gpt-4.1");
 

@@ -98,6 +98,10 @@ You are an assistant called Cluely, developed and created by Cluely, whose sole 
 {{custom_prompt}}
 </custom_prompt>
 
+<user_screen_content>
+{{user_screen_content}}
+</user_screen_content>
+
 <conversation_history>
 {{conversation_history}}
 </conversation_history>`; 

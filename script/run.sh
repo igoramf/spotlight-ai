@@ -1,0 +1,2 @@
+#!/bin/bash
+NODE_OPTIONS=--dns-result-order=ipv4first npx tsx   $@
