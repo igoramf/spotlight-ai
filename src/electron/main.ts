@@ -39,6 +39,13 @@ ipcMain.handle('take-screenshot', async () => {
   return `data:image/png;base64,${base64}`;
 });
 
+ipcMain.handle('move-window', (_event, dx: number = 0, dy: number = 0) => {
+  if (mainWindow) {
+    const bounds = mainWindow.getBounds();
+    mainWindow.setBounds({ ...bounds, x: bounds.x + dx, y: bounds.y + dy });
+  }
+});
+
 function registerMoveShortcuts(win: BrowserWindow) {
   const step = 50;
 

@@ -10,4 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   takeScreenshot: async (): Promise<string> => {
     return ipcRenderer.invoke('take-screenshot');
   },
+  moveWindow: (dx: number, dy: number): Promise<void> => {
+    return ipcRenderer.invoke('move-window', dx, dy);
+  },
 });

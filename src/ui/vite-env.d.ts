@@ -15,5 +15,6 @@ interface Window {
     setContentProtection: (flag: boolean) => Promise<boolean>;
     getContentProtectionStatus: () => Promise<boolean>;
     takeScreenshot: () => Promise<string>;
+    moveWindow: (dx: number, dy: number) => Promise<void>;
   };
 }

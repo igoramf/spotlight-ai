@@ -29,6 +29,14 @@ const SettingsInterface = ({
     if (typeof result === 'boolean') setIsProtected(result);
   };
 
+  const moveLeft = () => {
+    window.electronAPI?.moveWindow?.(-50, 0);
+  };
+
+  const moveRight = () => {
+    window.electronAPI?.moveWindow?.(50, 0);
+  };
+
   return (
     <Card className="w-[200px] bg-gray-900/95 backdrop-blur-sm border-gray-700 text-gray-300 absolute top-12 z-10 right-0">
       <CardContent className="p-2 pt-0">
@@ -92,6 +100,7 @@ const SettingsInterface = ({
               variant="outline"
               size="xs"
               className="text-gray-300 border-gray-600 hover:bg-gray-700 h-7"
+              onClick={moveLeft}
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               Move
@@ -100,6 +109,7 @@ const SettingsInterface = ({
               variant="outline"
               size="xs"
               className="text-gray-300 border-gray-600 hover:bg-gray-700 h-7"
+              onClick={moveRight}
             >
               Move
               <ChevronRight className="w-4 h-4 ml-1" />
