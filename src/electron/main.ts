@@ -22,9 +22,12 @@ ipcMain.handle('get-content-protection-status', () => {
 });
 
 ipcMain.handle('take-screenshot', async () => {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.size;
+
   const sources = await desktopCapturer.getSources({
     types: ['screen'],
-    thumbnailSize: { width: 0, height: 0 },
+    thumbnailSize: { width, height },
   });
 
   if (!sources.length) {
