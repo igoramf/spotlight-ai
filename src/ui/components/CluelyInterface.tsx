@@ -11,7 +11,7 @@ const CluelyInterface = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [showChat, setShowChat] = useState(true);
-  const [showInput, setShowInput] = useState(true);
+  const [showInput, setShowInput] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([
     { id: 0, question: null, response: null },
   ]);

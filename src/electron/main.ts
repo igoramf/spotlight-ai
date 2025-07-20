@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut } from 'electron';
+import { app, BrowserWindow, globalShortcut, screen } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { isDev } from './util.js';
@@ -23,10 +23,18 @@ function registerMoveShortcuts(win: BrowserWindow) {
 }
 
 app.on('ready', () => {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width: screenWidth } = primaryDisplay.workAreaSize;
+
+  const windowWidth = 800;
+  const windowHeight = 465;
+
   mainWindow = new BrowserWindow({
+    x: Math.floor((screenWidth - windowWidth) / 2),
+    y: 0,
     frame: false,
-    width: 800,
-    height: 465,
+    width: windowWidth,
+    height: windowHeight,
     titleBarStyle: 'hidden',
     transparent: true,
     backgroundColor: '#00000000',
