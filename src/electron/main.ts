@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, screen, ipcMain, nativeImage } from 'electron';
+import { app, BrowserWindow, globalShortcut, screen, ipcMain, nativeImage, desktopCapturer } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { isDev } from './util.js';
@@ -19,6 +19,21 @@ ipcMain.handle('set-content-protection', (_event, flag: boolean) => {
 
 ipcMain.handle('get-content-protection-status', () => {
   return contentProtectionEnabled;
+});
+
+ipcMain.handle('take-screenshot', async () => {
+  const sources = await desktopCapturer.getSources({
+    types: ['screen'],
+    thumbnailSize: { width: 0, height: 0 },
+  });
+
+  if (!sources.length) {
+    throw new Error('No screen sources found');
+  }
+
+  const screenshotPngBuffer = sources[0].thumbnail.toPNG();
+  const base64 = screenshotPngBuffer.toString('base64');
+  return `data:image/png;base64,${base64}`;
 });
 
 function registerMoveShortcuts(win: BrowserWindow) {

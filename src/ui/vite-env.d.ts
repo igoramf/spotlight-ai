@@ -14,5 +14,6 @@ interface Window {
   electronAPI: {
     setContentProtection: (flag: boolean) => Promise<boolean>;
     getContentProtectionStatus: () => Promise<boolean>;
+    takeScreenshot: () => Promise<string>;
   };
 }

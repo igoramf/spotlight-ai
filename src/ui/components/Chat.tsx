@@ -9,6 +9,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
 import { AzureOpenAIClient } from '../../lib/llm/openai/azureClient';
 import { buildPrompt } from '../../lib/prompt/promptBuilder';
 import { cn } from '../lib/utils';
+import { useScreenshot } from '../hooks/useScreenshot';
 
 const AnimatedDots = () => {
   return (
@@ -37,7 +38,14 @@ const Chat = ({
   onSendMessage,
   conversation_history,
 }: ChatProps) => {
+  const {
+    AnalyzingScreen: isAnalyzingScreen,
+    result: screenshotResult,
+    error: screenshotError,
+    handleScreenshot,
+  } = useScreenshot();
   const [isLoading, setIsLoading] = useState(false);
+  const [isWaitingForScreenshot, setIsWaitingForScreenshot] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState<string | null>(
     conversation?.question || null,
   );
@@ -73,24 +81,39 @@ const Chat = ({
     setCurrentQuestion(message);
     setIsLoading(true);
     setCurrentResponse(null);
+    setIsWaitingForScreenshot(true);
+    await handleScreenshot(message);
+  };
 
-    setTimeout(async () => {
-      const client = new AzureOpenAIClient("gpt-4.1");
+  useEffect(() => {
+    if (!isWaitingForScreenshot) return;
+
+    const processAiResponse = async () => {
+      const client = new AzureOpenAIClient('gpt-4.1');
       const prompt = await buildPrompt({
-        conversation_history: conversation_history
-          .filter((c) => c.question && c.response)
-          .map((c) => `USER: ${c.question}\nASSISTANT: ${c.response}`)
-          .join('\n\n') + (conversation_history.length > 0 ? '\n\n' : '') + `USER: ${message}`,
-        custom_prompt: "Responda sempre em pt-br",
+        conversation_history:
+          conversation_history
+            .filter((c) => c.question && c.response)
+            .map((c) => `USER: ${c.question}\nASSISTANT: ${c.response}`)
+            .join('\n\n') +
+          (conversation_history.length > 0 ? '\n\n' : '') +
+          `USER: ${currentQuestion}`,
+        custom_prompt: 'Responda sempre em pt-br',
+        user_screen_content: screenshotResult || '',
       });
       const newResponse = await client.createChatCompletion(prompt);
       setCurrentResponse(newResponse);
-      if (newResponse) {
-        onSendMessage(message, newResponse);
+      if (newResponse && currentQuestion) {
+        onSendMessage(currentQuestion, newResponse);
       }
       setIsLoading(false);
-    }, 2000);
-  };
+      setIsWaitingForScreenshot(false);
+    };
+
+    if (!isAnalyzingScreen) {
+      processAiResponse();
+    }
+  }, [isAnalyzingScreen, isWaitingForScreenshot, screenshotResult, currentQuestion]);
 
   return (
     <div className="flex flex-col items-center w-[700px]">
@@ -105,7 +128,11 @@ const Chat = ({
             <div className="flex justify-between items-start">
               <div className="text-xs font-medium">
                 <span className="text-gray-400">
-                  {isLoading ? 'Thinking...' : 'AI Response'}
+                  {isAnalyzingScreen
+                    ? 'Analyzing your screen...'
+                    : isLoading
+                    ? 'Thinking...'
+                    : 'AI Response'}
                 </span>
               </div>
               <div className="flex justify-end items-center gap-2">
@@ -120,7 +147,9 @@ const Chat = ({
                     <TooltipTrigger asChild>
                       <button
                         onClick={handleCopy}
-                        disabled={!currentResponse || isLoading}
+                        disabled={
+                          !currentResponse || isLoading || isAnalyzingScreen
+                        }
                         className="text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Copy size={16} />
@@ -140,7 +169,7 @@ const Chat = ({
               </div>
             </div>
 
-            {isLoading && <AnimatedDots />}
+            {(isLoading || isAnalyzingScreen) && <AnimatedDots />}
 
             {currentResponse && (
               <div className="flex-grow overflow-y-auto max-h-[300px] mt-2">
@@ -158,7 +187,7 @@ const Chat = ({
       {showInput && (
         <InputCustom
           onSendMessage={handleSendMessage}
-          isLoading={isLoading}
+          isLoading={isLoading || isAnalyzingScreen}
           isChatVisible={!!currentQuestion}
         />
       )}

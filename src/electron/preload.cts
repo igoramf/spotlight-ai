@@ -7,4 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getContentProtectionStatus: (): Promise<boolean> => {
     return ipcRenderer.invoke('get-content-protection-status');
   },
+  takeScreenshot: async (): Promise<string> => {
+    return ipcRenderer.invoke('take-screenshot');
+  },
 });
