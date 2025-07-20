@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { GeminiClient } from "./geminiClient";
-import { buildPrompt } from "../../lib/prompt/promptBuilder";
-import { IMAGE_PROMPT } from "../../lib/prompt/imagePrompt";
-import { imageToBase64 } from "../../lib/helpers";
+import { buildPrompt } from "../../prompt/promptBuilder";
+import { IMAGE_PROMPT } from "../../prompt/imagePrompt";
+import { imageToBase64 } from "../../helpers";
 import * as fs from "fs";
 
 

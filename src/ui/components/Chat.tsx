@@ -6,7 +6,7 @@ import { Badge } from './ui/badge';
 import { Conversation } from '../types';
 import { useToast } from '../hooks/use-toast';
 import { Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
-import { AzureOpenAIClient } from '../../services/openai/azureClient';
+import { AzureOpenAIClient } from '../../lib/llm/openai/azureClient';
 import { buildPrompt } from '../../lib/prompt/promptBuilder';
 import { cn } from '../lib/utils';
 
