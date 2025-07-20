@@ -94,7 +94,7 @@ const Chat = ({
     <div className="flex flex-col items-center w-[700px]">
       {currentQuestion && (
         <Card className="w-full bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white rounded-b-none">
-          <CardContent className="p-4">
+          <CardContent className="p-4 flex flex-col">
             <div className="flex justify-between items-start">
               <div className="text-xs font-medium">
                 <span className="text-gray-400">
@@ -136,8 +136,8 @@ const Chat = ({
             {isLoading && <AnimatedDots />}
 
             {currentResponse && (
-              <div>
-                <ul className="list-disc list-inside space-y-2 text-sm mt-2">
+              <div className="flex-grow overflow-y-auto max-h-[300px] mt-2">
+                <ul className="list-disc list-inside space-y-2 text-sm">
                   {currentResponse.split('\n').map((line, index) => (
                     <li key={index}>{line.replace('-', '').trim()}</li>
                   ))}
