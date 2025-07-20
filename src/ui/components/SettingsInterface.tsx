@@ -8,12 +8,27 @@ import {
   SelectValue,
 } from './ui/select';
 import { Paperclip, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 const SettingsInterface = ({
   setShowSettings,
 }: {
   setShowSettings: (show: boolean) => void;
 }) => {
+  const [isProtected, setIsProtected] = useState<boolean>(true);
+
+  useEffect(() => {
+    window.electronAPI?.getContentProtectionStatus?.().then((status) => {
+      if (typeof status === 'boolean') setIsProtected(status);
+    });
+  }, []);
+
+  const handleToggleProtection = async () => {
+    const newStatus = !(isProtected);
+    const result = await window.electronAPI?.setContentProtection?.(newStatus);
+    if (typeof result === 'boolean') setIsProtected(result);
+  };
+
   return (
     <Card className="w-[200px] bg-gray-900/95 backdrop-blur-sm border-gray-700 text-gray-300 absolute top-12 z-10 right-0">
       <CardContent className="p-2 pt-0">
@@ -102,8 +117,9 @@ const SettingsInterface = ({
             variant="outline"
             size="xs"
             className="w-full text-gray-300 border-gray-600 hover:bg-gray-700 h-7"
+            onClick={handleToggleProtection}
           >
-            Disable Invisibility
+            {isProtected ? 'Disable Invisibility' : 'Enable Invisibility'}
           </Button>
 
           <div className="flex gap-2">

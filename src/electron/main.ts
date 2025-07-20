@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut, screen } from 'electron';
+import { app, BrowserWindow, globalShortcut, screen, ipcMain, nativeImage } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { isDev } from './util.js';
@@ -7,6 +7,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null = null;
+let contentProtectionEnabled: boolean = true;
+
+ipcMain.handle('set-content-protection', (_event, flag: boolean) => {
+  contentProtectionEnabled = Boolean(flag);
+  if (mainWindow) {
+    mainWindow.setContentProtection(contentProtectionEnabled);
+  }
+  return contentProtectionEnabled;
+});
+
+ipcMain.handle('get-content-protection-status', () => {
+  return contentProtectionEnabled;
+});
 
 function registerMoveShortcuts(win: BrowserWindow) {
   const step = 50;
@@ -39,6 +52,7 @@ app.on('ready', () => {
     transparent: true,
     backgroundColor: '#00000000',
     webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: false,
       contextIsolation: true,
       webSecurity: false,

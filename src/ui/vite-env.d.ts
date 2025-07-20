@@ -9,3 +9,10 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+interface Window {
+  electronAPI: {
+    setContentProtection: (flag: boolean) => Promise<boolean>;
+    getContentProtectionStatus: () => Promise<boolean>;
+  };
+}
