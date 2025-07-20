@@ -11,6 +11,7 @@ const CluelyInterface = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [showChat, setShowChat] = useState(true);
+  const [showInput, setShowInput] = useState(true);
   const [conversations, setConversations] = useState<Conversation[]>([
     { id: 0, question: null, response: null },
   ]);
@@ -88,7 +89,12 @@ const CluelyInterface = () => {
       
       if (event.ctrlKey && event.key === 'f') {
         event.preventDefault();
-        setShowChat(true);
+        if (showChat) {
+          setShowInput((prev) => !prev);
+        } else {
+          setShowChat(true);
+          setShowInput(true);
+        }
       } else if (event.ctrlKey && event.key === 'ArrowUp') {
         event.preventDefault();
         if (conversations.length > 1) {
@@ -162,6 +168,7 @@ const CluelyInterface = () => {
           <div className="mt-2">
             <Chat
               setShowChat={setShowChat}
+              showInput={showInput}
               conversation={conversations[activeConversationIndex]}
               conversation_history={conversations}
               onNewConversation={handleNewConversation}

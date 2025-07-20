@@ -8,6 +8,7 @@ import { useToast } from '../hooks/use-toast';
 import { Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
 import { AzureOpenAIClient } from '../../services/openai/azureClient';
 import { buildPrompt } from '../../services/openai/promptBuilder';
+import { cn } from '../lib/utils';
 
 const AnimatedDots = () => {
   return (
@@ -21,6 +22,7 @@ const AnimatedDots = () => {
 
 interface ChatProps {
   setShowChat: (show: boolean) => void;
+  showInput: boolean;
   conversation: Conversation;
   onNewConversation: () => void;
   onSendMessage: (message: string, response: string) => void;
@@ -29,6 +31,7 @@ interface ChatProps {
 
 const Chat = ({
   setShowChat,
+  showInput,
   conversation,
   onNewConversation,
   onSendMessage,
@@ -81,7 +84,6 @@ const Chat = ({
         custom_prompt: "Responda sempre em pt-br",
       });
       const newResponse = await client.createChatCompletion(prompt);
-      console.log(newResponse);
       setCurrentResponse(newResponse);
       if (newResponse) {
         onSendMessage(message, newResponse);
@@ -93,7 +95,12 @@ const Chat = ({
   return (
     <div className="flex flex-col items-center w-[700px]">
       {currentQuestion && (
-        <Card className="w-full bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white rounded-b-none">
+        <Card
+          className={cn(
+            'w-full bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white',
+            showInput && 'rounded-b-none',
+          )}
+        >
           <CardContent className="p-4 flex flex-col">
             <div className="flex justify-between items-start">
               <div className="text-xs font-medium">
@@ -145,14 +152,16 @@ const Chat = ({
               </div>
             )}
           </CardContent>
-          <div className="border-b border-gray-700 "></div>
+          {showInput && <div className="border-b border-gray-700 "></div>}
         </Card>
       )}
-      <InputCustom
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-        isChatVisible={!!currentQuestion}
-      />
+      {showInput && (
+        <InputCustom
+          onSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          isChatVisible={!!currentQuestion}
+        />
+      )}
     </div>
   );
 };
