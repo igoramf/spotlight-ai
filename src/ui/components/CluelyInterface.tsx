@@ -4,6 +4,7 @@ import { Card, CardContent } from './ui/card';
 import { Settings, Eye, EyeOff, Mic, AudioLinesIcon } from 'lucide-react';
 import Chat from './Chat';
 import { Conversation } from '../types';
+import SettingsInterface from './SettingsInterface';
 
 const CluelyInterface = () => {
   const [timer, setTimer] = useState('00:00');
@@ -12,6 +13,7 @@ const CluelyInterface = () => {
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [showChat, setShowChat] = useState(true);
   const [showInput, setShowInput] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([
     { id: 0, question: null, response: null },
   ]);
@@ -155,13 +157,15 @@ const CluelyInterface = () => {
                   <span className="ml-1 px-1.5 py-0.5 bg-gray-700 rounded text-xs text-gray-300">X</span>
                 </Button>
                 
-                <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800">
+                <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800" onClick={() => setShowSettings(!showSettings)}>
                   <Settings className="w-4 h-4" />
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {showSettings && <SettingsInterface setShowSettings={setShowSettings} />}
 
         {/* AI Response Section */}
         {showChat && (
