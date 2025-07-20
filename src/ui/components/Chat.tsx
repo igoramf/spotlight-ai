@@ -137,7 +137,7 @@ const Chat = ({
 
             {currentResponse && (
               <div>
-                <ul className="list-disc list-inside space-y-2 text-sm">
+                <ul className="list-disc list-inside space-y-2 text-sm mt-2">
                   {currentResponse.split('\n').map((line, index) => (
                     <li key={index}>{line.replace('-', '').trim()}</li>
                   ))}
