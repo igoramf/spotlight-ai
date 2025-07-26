@@ -18,7 +18,14 @@ const CluelyInterface = () => {
   ]);
   const [activeConversationIndex, setActiveConversationIndex] = useState(0);
 
-  const { isRecording, recordingTime, toggleRecording } = useAudioRecording();
+  // Use the audio recording hook with transcription
+  const { 
+    isRecording, 
+    recordingTime, 
+    toggleRecording, 
+    currentTranscription, 
+    isTranscribing 
+  } = useAudioRecording();
 
   const handleNewConversation = () => {
     const newConversation: Conversation = {
@@ -121,6 +128,12 @@ const CluelyInterface = () => {
                   Listen {isRecording && `(${timer})`}
                   <AudioLinesIcon className={isRecording ? 'text-red-500 animate-pulse' : 'text-gray-300 border-gray-600'} />
                 </Button>
+                
+                {/* Show transcription status */}
+                {isTranscribing && (
+                  <span className="text-xs text-blue-400 animate-pulse">Transcrevendo...</span>
+                )}
+
                 <Button 
                   variant="outline" 
                   size="xs" 
@@ -151,6 +164,30 @@ const CluelyInterface = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Real-time Transcription Display */}
+        {isRecording && currentTranscription && (
+          <div className="mt-2 w-full max-w-2xl">
+            <Card className="shadow-sm bg-gray-900/90 backdrop-blur-sm border-gray-700">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-gray-300">Transcrição em Tempo Real</h3>
+                  {isTranscribing && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-blue-400">Processando...</span>
+                    </div>
+                  )}
+                </div>
+                <div className="max-h-40 overflow-y-auto bg-gray-800/50 rounded p-2 text-sm text-gray-200">
+                  <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed">
+                    {currentTranscription}
+                  </pre>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {showSettings && <SettingsInterface setShowSettings={setShowSettings} />}
 

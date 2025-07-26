@@ -67,4 +67,29 @@ export class GeminiClient {
         throw error;
     }
   }
+
+  async transcribeAudio(audioBase64: string, mimeType: string, language: string = "pt-BR") {
+    try {
+      const model = this.getModel(); // Using Gemini Flash for audio transcription
+      
+      const audioData = {
+        inlineData: {
+          data: audioBase64,
+          mimeType: mimeType,
+        },
+      };
+
+      const prompt = `Transcreva o áudio fornecido para texto em ${language}. 
+      Forneça apenas a transcrição do que foi falado, sem comentários adicionais.
+      Se não houver fala audível, responda apenas "..." 
+      Mantenha a formatação natural da fala com pontuação apropriada.`;
+      
+      const result = await model.generateContent([prompt, audioData]);
+      const response = await result.response;
+      return response.text().trim();
+    } catch (error) {
+      console.error("Error transcribing audio:", error);
+      throw error;
+    }
+  }
 } 
