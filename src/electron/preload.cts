@@ -13,4 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   moveWindow: (dx: number, dy: number): Promise<void> => {
     return ipcRenderer.invoke('move-window', dx, dy);
   },
+  saveAudioRecording: (audioData: ArrayBuffer, filename: string): Promise<{ success: boolean; filePath: string }> => {
+    return ipcRenderer.invoke('save-audio-recording', audioData, filename);
+  },
 });

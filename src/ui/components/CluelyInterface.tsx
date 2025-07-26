@@ -5,12 +5,11 @@ import { Settings, Eye, EyeOff, Mic, AudioLinesIcon } from 'lucide-react';
 import Chat from './Chat';
 import { Conversation } from '../types';
 import SettingsInterface from './SettingsInterface';
+import { useAudioRecording } from '../hooks/useAudioRecording';
 
 const CluelyInterface = () => {
   const [timer, setTimer] = useState('00:00');
   const [showHide, setShowHide] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [showChat, setShowChat] = useState(true);
   const [showInput, setShowInput] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -18,6 +17,8 @@ const CluelyInterface = () => {
     { id: 0, question: null, response: null },
   ]);
   const [activeConversationIndex, setActiveConversationIndex] = useState(0);
+
+  const { isRecording, recordingTime, toggleRecording } = useAudioRecording();
 
   const handleNewConversation = () => {
     const newConversation: Conversation = {
@@ -67,24 +68,10 @@ const CluelyInterface = () => {
   };
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (isRecording) {
-      interval = setInterval(() => {
-        setRecordingSeconds((prev) => prev + 1);
-      }, 1000);
-    } else {
-      setRecordingSeconds(0);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isRecording]);
-
-  useEffect(() => {
-    const minutes = String(Math.floor(recordingSeconds / 60)).padStart(2, '0');
-    const seconds = String(recordingSeconds % 60).padStart(2, '0');
+    const minutes = String(Math.floor(recordingTime / 60)).padStart(2, '0');
+    const seconds = String(recordingTime % 60).padStart(2, '0');
     setTimer(`${minutes}:${seconds}`);
-  }, [recordingSeconds]);
+  }, [recordingTime]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -128,10 +115,10 @@ const CluelyInterface = () => {
                   variant={isRecording ? 'default' : 'outline'}
                   size="xs"
                   className="flex items-center gap-1 text-gray-300 border-gray-600 h-8 px-2"
-                  onClick={() => setIsRecording((r) => !r)}
+                  onClick={toggleRecording}
                   aria-label={isRecording ? 'Stop recording' : 'Start recording'}
                 >
-                  Listen
+                  Listen {isRecording && `(${timer})`}
                   <AudioLinesIcon className={isRecording ? 'text-red-500 animate-pulse' : 'text-gray-300 border-gray-600'} />
                 </Button>
                 <Button 

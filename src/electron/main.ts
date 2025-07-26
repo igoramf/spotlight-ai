@@ -2,6 +2,7 @@ import { app, BrowserWindow, globalShortcut, screen, ipcMain, nativeImage, deskt
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { isDev } from './util.js';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +44,26 @@ ipcMain.handle('move-window', (_event, dx: number = 0, dy: number = 0) => {
   if (mainWindow) {
     const bounds = mainWindow.getBounds();
     mainWindow.setBounds({ ...bounds, x: bounds.x + dx, y: bounds.y + dy });
+  }
+});
+
+ipcMain.handle('save-audio-recording', async (_event, audioData: ArrayBuffer, filename: string) => {
+  try {
+    const recordingsDir = path.join(process.cwd(), 'recordings');
+    
+    if (!fs.existsSync(recordingsDir)) {
+      fs.mkdirSync(recordingsDir, { recursive: true });
+    }
+    
+    const filePath = path.join(recordingsDir, filename);
+    const buffer = Buffer.from(audioData);
+    
+    fs.writeFileSync(filePath, buffer);
+    
+    return { success: true, filePath };
+  } catch (error) {
+    console.error('Error saving audio recording:', error);
+    throw error;
   }
 });
 
