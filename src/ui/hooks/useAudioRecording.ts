@@ -39,9 +39,8 @@ export const useAudioRecording = () => {
       console.log('Transcription update:', result);
       
       if (result.transcription && result.transcription !== '...') {
-        const timestamp = new Date(result.timestamp).toLocaleTimeString();
         setCurrentTranscription(prev => {
-          const newText = `[${timestamp}] ${result.transcription}`;
+          const newText = result.transcription;
           return prev ? `${prev}\n${newText}` : newText;
         });
       }

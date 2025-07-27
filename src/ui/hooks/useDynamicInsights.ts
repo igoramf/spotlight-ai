@@ -123,7 +123,7 @@ export const useDynamicInsights = (currentTranscription: string, isRecording: bo
   useEffect(() => {
     if (isRecording) {
       analyzeContext();
-      intervalRef.current = setInterval(analyzeContext, 5000);
+      intervalRef.current = setInterval(analyzeContext, 10000);
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
