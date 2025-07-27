@@ -7,7 +7,6 @@ import { WebSocketServer } from 'ws';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 
-// Load environment variables
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -18,9 +17,7 @@ let contentProtectionEnabled: boolean = true;
 let wss: WebSocketServer | null = null;
 let geminiClient: GoogleGenerativeAI | null = null;
 
-// Initialize Gemini client
 function initializeGemini() {
-  // Try different environment variable formats
   const apiKey = process.env.VITE_GEMINI_API_KEY || 
                  process.env.GEMINI_API_KEY || 
                  process.env.GOOGLE_API_KEY;
@@ -40,7 +37,6 @@ function initializeGemini() {
   }
 }
 
-// Setup WebSocket server for real-time transcription
 function setupWebSocketServer() {
   wss = new WebSocketServer({ port: 8080 });
   console.log('WebSocket server started on port 8080');
@@ -53,7 +49,6 @@ function setupWebSocketServer() {
         const data = JSON.parse(message.toString());
         
         if (data.type === 'audio-chunk') {
-          // Process audio chunk for transcription
           await handleAudioTranscription(ws, data.audioData, data.mimeType);
         }
       } catch (error) {
@@ -113,7 +108,6 @@ async function handleAudioTranscription(ws: any, audioBase64: string, mimeType: 
 
     console.log('Transcription result:', transcription);
 
-    // Send transcription result back to client
     ws.send(JSON.stringify({
       type: 'transcription-result',
       transcription: transcription,
@@ -171,7 +165,6 @@ ipcMain.handle('save-audio-recording', async (_event, audioData: ArrayBuffer, fi
   try {
     const recordingsDir = path.join(process.cwd(), 'recordings');
     
-    // Ensure recordings directory exists
     if (!fs.existsSync(recordingsDir)) {
       fs.mkdirSync(recordingsDir, { recursive: true });
     }
@@ -203,23 +196,28 @@ function registerMoveShortcuts(win: BrowserWindow) {
 }
 
 app.on('ready', () => {
-  // Initialize Gemini and WebSocket server
+
   console.log('App ready - initializing services...');
   initializeGemini();
   setupWebSocketServer();
 
   const primaryDisplay = screen.getPrimaryDisplay();
-  const { width: screenWidth } = primaryDisplay.workAreaSize;
+  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
 
-  const windowWidth = 800;
-  const windowHeight = 465;
+  const windowWidth = 1400;
+  const windowHeight = 900;
 
   mainWindow = new BrowserWindow({
     x: Math.floor((screenWidth - windowWidth) / 2),
-    y: 0,
+    y: 30,
     frame: false,
     width: windowWidth,
     height: windowHeight,
+    minWidth: 1200,
+    minHeight: 700,
+    maxWidth: Math.floor(screenWidth * 0.98),
+    maxHeight: Math.floor(screenHeight * 0.95),
+    resizable: true,
     titleBarStyle: 'hidden',
     transparent: true,
     backgroundColor: '#00000000',

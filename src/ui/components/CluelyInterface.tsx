@@ -5,6 +5,7 @@ import { Settings, Eye, EyeOff, Mic, AudioLinesIcon } from 'lucide-react';
 import Chat from './Chat';
 import { Conversation } from '../types';
 import SettingsInterface from './SettingsInterface';
+import LiveInsights from './LiveInsights';
 import { useAudioRecording } from '../hooks/useAudioRecording';
 
 const CluelyInterface = () => {
@@ -18,7 +19,6 @@ const CluelyInterface = () => {
   ]);
   const [activeConversationIndex, setActiveConversationIndex] = useState(0);
 
-  // Use the audio recording hook with transcription
   const { 
     isRecording, 
     recordingTime, 
@@ -58,6 +58,21 @@ const CluelyInterface = () => {
     }
     
     setConversations(updatedConversations);
+  };
+
+  const handleAskCluely = (question: string) => {
+    if (!showChat) {
+      setShowChat(true);
+    }
+    
+    if (!showInput) {
+      setShowInput(true);
+    }
+
+    handleNewConversation();
+    
+    const event = new CustomEvent('cluelyQuestion', { detail: { question } });
+    window.dispatchEvent(event);
   };
 
   const handlePreviousConversation = () => {
@@ -111,9 +126,8 @@ const CluelyInterface = () => {
   }, [conversations, handlePreviousConversation, handleNextConversation]);
 
   return (
-    <div className="">
+    <div className="w-full min-h-screen">
       <div className="flex flex-col items-center">
-        {/* Header Control Bar */}
         <Card className="shadow-sm bg-gray-900/90 backdrop-blur-sm inline-block border-gray-700">
           <CardContent className="p-1">
             <div className="flex items-center justify-between">       
@@ -128,11 +142,6 @@ const CluelyInterface = () => {
                   Listen {isRecording && `(${timer})`}
                   <AudioLinesIcon className={isRecording ? 'text-red-500 animate-pulse' : 'text-gray-300 border-gray-600'} />
                 </Button>
-                
-                {/* Show transcription status */}
-                {isTranscribing && (
-                  <span className="text-xs text-blue-400 animate-pulse">Transcrevendo...</span>
-                )}
 
                 <Button 
                   variant="outline" 
@@ -165,45 +174,61 @@ const CluelyInterface = () => {
           </CardContent>
         </Card>
 
-        {/* Real-time Transcription Display */}
-        {isRecording && currentTranscription && (
-          <div className="mt-2 w-full max-w-2xl">
-            <Card className="shadow-sm bg-gray-900/90 backdrop-blur-sm border-gray-700">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-gray-300">Transcrição em Tempo Real</h3>
-                  {isTranscribing && (
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs text-blue-400">Processando...</span>
-                    </div>
-                  )}
-                </div>
-                <div className="max-h-40 overflow-y-auto bg-gray-800/50 rounded p-2 text-sm text-gray-200">
-                  <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed">
-                    {currentTranscription}
-                  </pre>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
         {showSettings && <SettingsInterface setShowSettings={setShowSettings} />}
 
-        {/* AI Response Section */}
-        {showChat && (
-          <div className="mt-2">
-            <Chat
-              setShowChat={setShowChat}
-              showInput={showInput}
-              conversation={conversations[activeConversationIndex]}
-              conversation_history={conversations}
-              onNewConversation={handleNewConversation}
-              onSendMessage={handleSendMessage}
-            />
-          </div>
-        )}
+        <div className="mt-4 w-full">
+          {showChat && isRecording ? (
+            <div className="grid grid-cols-[300px_1fr_300px] gap-6 w-full max-w-[1400px] mx-auto">
+              <div className="flex justify-end">
+                <LiveInsights
+                  currentTranscription={currentTranscription}
+                  isRecording={isRecording}
+                  isTranscribing={isTranscribing}
+                  onAskCluely={handleAskCluely}
+                />
+              </div>
+              
+              <div className="flex justify-center">
+                <Chat
+                  setShowChat={setShowChat}
+                  showInput={showInput}
+                  conversation={conversations[activeConversationIndex]}
+                  conversation_history={conversations}
+                  onNewConversation={handleNewConversation}
+                  onSendMessage={handleSendMessage}
+                />
+              </div>
+              
+              <div></div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center w-full">
+              {isRecording && (
+                <div className="mb-4">
+                  <LiveInsights
+                    currentTranscription={currentTranscription}
+                    isRecording={isRecording}
+                    isTranscribing={isTranscribing}
+                    onAskCluely={handleAskCluely}
+                  />
+                </div>
+              )}
+              
+              {showChat && (
+                <div>
+                  <Chat
+                    setShowChat={setShowChat}
+                    showInput={showInput}
+                    conversation={conversations[activeConversationIndex]}
+                    conversation_history={conversations}
+                    onNewConversation={handleNewConversation}
+                    onSendMessage={handleSendMessage}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

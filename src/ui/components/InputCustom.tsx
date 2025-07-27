@@ -22,6 +22,25 @@ const InputCustom = ({ onSendMessage, isLoading, isChatVisible }: InputCustomPro
     }
   }, [isLoading]);
 
+  useEffect(() => {
+    const handleCluelyQuestion = (event: CustomEvent) => {
+      const { question } = event.detail;
+      if (question) {
+        setMessage(question);
+        setTimeout(() => {
+          onSendMessage(question);
+          setMessage("");
+        }, 100);
+      }
+    };
+
+    window.addEventListener('cluelyQuestion', handleCluelyQuestion as EventListener);
+    
+    return () => {
+      window.removeEventListener('cluelyQuestion', handleCluelyQuestion as EventListener);
+    };
+  }, [onSendMessage]);
+
   const handleSendMessage = () => {
     if (message.trim()) {
       onSendMessage(message);
