@@ -25,12 +25,9 @@ const InputCustom = ({ onSendMessage, isLoading, isChatVisible }: InputCustomPro
   useEffect(() => {
     const handleCluelyQuestion = (event: CustomEvent) => {
       const { question } = event.detail;
-      if (question) {
-        setMessage(question);
-        setTimeout(() => {
-          onSendMessage(question);
-          setMessage("");
-        }, 100);
+      if (question && question.trim()) {
+        // Send message immediately without setting it in the input
+        onSendMessage(question.trim());
       }
     };
 

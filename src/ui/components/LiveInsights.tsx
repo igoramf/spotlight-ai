@@ -30,41 +30,11 @@ const LiveInsights = ({
   const [activeTab, setActiveTab] = useState('summary');
   
   const generateActions = () => {
-    if (!currentTranscription) {
-      return [
-        { icon: BookOpen, text: "Define Cluely", color: "bg-blue-500" },
-        { icon: MapPin, text: "Where is Duluth, Georgia", color: "bg-orange-500" },
-        { icon: Building2, text: "Define Columbia University", color: "bg-blue-500" },
-        { icon: Globe, text: "Search the web for the recent Windsurf acquisition", color: "bg-gray-500" },
-        { icon: HelpCircle, text: "What makes Cluely different from other tools", color: "bg-red-500" },
-        { icon: Lightbulb, text: "Give me help with productivity", color: "bg-yellow-500" },
-        { icon: Brain, text: "Suggest follow-up questions", color: "bg-gray-500" }
-      ];
-    }
-
-    const words = currentTranscription.toLowerCase();
-    const actions = [];
-
-    if (words.includes('define') || words.includes('what is')) {
-      actions.push({ icon: BookOpen, text: "Define key terms mentioned", color: "bg-blue-500" });
-    }
-    if (words.includes('where') || words.includes('location')) {
-      actions.push({ icon: MapPin, text: "Find locations mentioned", color: "bg-orange-500" });
-    }
-    if (words.includes('company') || words.includes('business')) {
-      actions.push({ icon: Building2, text: "Research companies mentioned", color: "bg-blue-500" });
-    }
-    if (words.includes('search') || words.includes('web')) {
-      actions.push({ icon: Globe, text: "Search the web for more info", color: "bg-gray-500" });
-    }
-    
-    actions.push(
-      { icon: HelpCircle, text: "Ask follow-up questions", color: "bg-red-500" },
-      { icon: Lightbulb, text: "Get insights from transcript", color: "bg-yellow-500" },
-      { icon: Brain, text: "Summarize key points", color: "bg-purple-500" }
-    );
-
-    return actions;
+    return [
+      { icon: Lightbulb, text: "Give me help with productivity", color: "bg-yellow-500" },
+      { icon: HelpCircle, text: "Suggest follow-up questions", color: "bg-blue-500" },
+      { icon: Brain, text: "Think of another question", color: "bg-purple-500" }
+    ];
   };
 
   const actions = generateActions();
@@ -133,46 +103,30 @@ const LiveInsights = ({
           </Tabs>
 
           {activeTab === 'summary' && (
-            <>
-              <div>
-                <h4 className="text-xs font-semibold text-gray-400 mb-3">Smart Actions</h4>
-                            <div className="max-h-36 w-full overflow-y-auto">
-              <div className="space-y-2">
-                {actions.map((action, index) => {
-                      const IconComponent = action.icon;
-                      return (
-                        <button
-                          key={index}
-                          onClick={() => handleActionClick(action.text)}
-                          className="w-full flex items-center gap-3 p-2 hover:bg-gray-800/60 rounded-md text-left transition-all duration-200 group border border-transparent hover:border-gray-600"
-                        >
-                          <div className={`w-4 h-4 rounded-full ${action.color} flex items-center justify-center flex-shrink-0`}>
-                            <IconComponent className="w-2.5 h-2.5 text-white" />
-                          </div>
-                          <span className="text-xs text-gray-300 group-hover:text-white transition-colors leading-tight">
-                            {action.text}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
+            <div>
+              <h4 className="text-xs font-semibold text-gray-400 mb-3">Smart Actions</h4>
+              <div className="max-h-36 w-full overflow-y-auto">
+                <div className="space-y-2">
+                  {actions.map((action, index) => {
+                    const IconComponent = action.icon;
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => handleActionClick(action.text)}
+                        className="w-full flex items-center gap-3 p-2 hover:bg-gray-800/60 rounded-md text-left transition-all duration-200 group border border-transparent hover:border-gray-600"
+                      >
+                        <div className={`w-4 h-4 rounded-full ${action.color} flex items-center justify-center flex-shrink-0`}>
+                          <IconComponent className="w-2.5 h-2.5 text-white" />
+                        </div>
+                        <span className="text-xs text-gray-300 group-hover:text-white transition-colors leading-tight">
+                          {action.text}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-
-              <div className="space-y-1 pt-2 border-t border-gray-700">
-                <Button 
-                  size="sm" 
-                  className="w-full h-8 text-xs bg-blue-600 hover:bg-blue-700 transition-colors"
-                  onClick={() => onSendMessage("Analyze the current transcription and provide insights")}
-                >
-                  💬 Ask Cluely
-                </Button>
-                
-                <div className="text-center">
-                  <span className="text-xs text-gray-500">Get AI insights about your transcript</span>
-                </div>
-              </div>
-            </>
+            </div>
           )}
         </CardContent>
       </Card>
