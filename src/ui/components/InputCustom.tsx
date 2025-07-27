@@ -8,9 +8,11 @@ interface InputCustomProps {
     onSendMessage: (message: string) => void;
     isLoading: boolean;
     isChatVisible?: boolean;
+    onSmartModeChange?: (isSmartMode: boolean) => void;
+    onSearchModeChange?: (isSearchMode: boolean) => void;
   }
 
-const InputCustom = ({ onSendMessage, isLoading, isChatVisible }: InputCustomProps) => {
+const InputCustom = ({ onSendMessage, isLoading, isChatVisible, onSmartModeChange, onSearchModeChange }: InputCustomProps) => {
   const [message, setMessage] = useState("");
   const [isSmart, setIsSmart] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
@@ -52,6 +54,18 @@ const InputCustom = ({ onSendMessage, isLoading, isChatVisible }: InputCustomPro
     }
   };
 
+  const handleSmartToggle = () => {
+    const newSmartState = !isSmart;
+    setIsSmart(newSmartState);
+    onSmartModeChange?.(newSmartState);
+  };
+
+  const handleSearchToggle = () => {
+    const newSearchState = !isSearch;
+    setIsSearch(newSearchState);
+    onSearchModeChange?.(newSearchState);
+  };
+
   return (
     <div className="flex flex-col items-center">
         {/* Input field with attached send button */}
@@ -71,7 +85,7 @@ const InputCustom = ({ onSendMessage, isLoading, isChatVisible }: InputCustomPro
               variant={isSearch ? "default" : "outline"}
               size="xs"
               className="h-6 px-1.5 text-gray-300 border-gray-600 hover:bg-gray-800 rounded-full text-xs"
-              onClick={() => setIsSearch(!isSearch)}
+              onClick={handleSearchToggle}
               disabled={isLoading}
             >
               <GlobeIcon className="w-3 h-3 " />
@@ -81,7 +95,7 @@ const InputCustom = ({ onSendMessage, isLoading, isChatVisible }: InputCustomPro
               variant={isSmart ? "default" : "outline"}
               size="xs"
               className="h-6 px-1.5 text-gray-300 border-gray-600 hover:bg-gray-800 rounded-full text-xs"
-              onClick={() => setIsSmart(!isSmart)}
+              onClick={handleSmartToggle}
               disabled={isLoading}
             >
               <BrainIcon className="w-3 h-3" />

@@ -20,6 +20,8 @@ const CluelyInterface = () => {
   ]);
   const [activeConversationIndex, setActiveConversationIndex] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSmartMode, setIsSmartMode] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(false);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
 
   const { 
@@ -39,6 +41,14 @@ const CluelyInterface = () => {
     };
     setConversations([...conversations, newConversation]);
     setActiveConversationIndex(conversations.length);
+  };
+
+  const handleSmartModeChange = (smartMode: boolean) => {
+    setIsSmartMode(smartMode);
+  };
+
+  const handleSearchModeChange = (searchMode: boolean) => {
+    setIsSearchMode(searchMode);
   };
 
   const handleSendMessage = (message: string, response: string) => {
@@ -66,21 +76,6 @@ const CluelyInterface = () => {
 
   const handleMessageSent = () => {
     setShowInput(false);
-  };
-
-  const handleAskCluely = (question: string) => {
-    if (!showChat) {
-      setShowChat(true);
-    }
-    
-    if (!showInput) {
-      setShowInput(true);
-    }
-
-    handleNewConversation();
-    
-    const event = new CustomEvent('cluelyQuestion', { detail: { question } });
-    window.dispatchEvent(event);
   };
 
   const handleSendMessageFromLiveInsights = (message: string) => {
@@ -256,6 +251,10 @@ const CluelyInterface = () => {
                   onMessageSent={handleMessageSent}
                   onProcessingChange={setIsProcessing}
                   currentTranscription={currentTranscription}
+                  isSmartMode={isSmartMode}
+                  onSmartModeChange={handleSmartModeChange}
+                  isSearchMode={isSearchMode}
+                  onSearchModeChange={handleSearchModeChange}
                 />
               </div>
               
@@ -285,6 +284,10 @@ const CluelyInterface = () => {
                   onMessageSent={handleMessageSent}
                   onProcessingChange={setIsProcessing}
                   currentTranscription={currentTranscription}
+                  isSmartMode={isSmartMode}
+                  onSmartModeChange={handleSmartModeChange}
+                  isSearchMode={isSearchMode}
+                  onSearchModeChange={handleSearchModeChange}
                 />
               )}
             </div>

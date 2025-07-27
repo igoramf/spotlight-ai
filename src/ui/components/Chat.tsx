@@ -10,6 +10,7 @@ import { AzureOpenAIClient } from '../../lib/llm/openai/azureClient';
 import { buildPrompt } from '../../lib/prompt/promptBuilder';
 import { cn } from '../lib/utils';
 import { useScreenshot } from '../hooks/useScreenshot';
+import { WebSearchService } from '../../lib/webSearch';
 
 const AnimatedDots = () => {
   return (
@@ -31,6 +32,10 @@ interface ChatProps {
   onMessageSent?: () => void;
   onProcessingChange?: (isProcessing: boolean) => void;
   currentTranscription?: string;
+  isSmartMode?: boolean;
+  onSmartModeChange?: (isSmartMode: boolean) => void;
+  isSearchMode?: boolean;
+  onSearchModeChange?: (isSearchMode: boolean) => void;
 }
 
 const Chat = ({
@@ -43,6 +48,10 @@ const Chat = ({
   onMessageSent,
   onProcessingChange,
   currentTranscription,
+  isSmartMode = false,
+  onSmartModeChange,
+  isSearchMode = false,
+  onSearchModeChange,
 }: ChatProps) => {
   const {
     AnalyzingScreen: isAnalyzingScreen,
@@ -94,19 +103,37 @@ const Chat = ({
     if (!isWaitingForScreenshot) return;
 
     const processAiResponse = async () => {
-      const client = new AzureOpenAIClient('gpt-4.1');
+      let webSearchResults = '';
+      
+      // Perform web search if search mode is enabled
+      if (isSearchMode && currentQuestion) {
+        try {
+          const webSearchService = WebSearchService.getInstance();
+          const searchResponse = await webSearchService.searchWeb(currentQuestion);
+          webSearchResults = webSearchService.formatSearchResults(searchResponse);
+        } catch (error) {
+          console.error('Web search error:', error);
+          webSearchResults = 'Erro ao realizar busca na web.';
+        }
+      }
+
+      const modelName = isSmartMode ? 'o3' : 'gpt-4.1';
+      const client = new AzureOpenAIClient(modelName);
+      
+      const conversationHistory = conversation_history
+        .filter((c) => c.question && c.response)
+        .map((c) => `USER: ${c.question}\nASSISTANT: ${c.response}`)
+        .join('\n\n') +
+        (conversation_history.length > 0 ? '\n\n' : '') +
+        `USER: ${currentQuestion}`;
+
       const prompt = await buildPrompt({
-        conversation_history:
-          conversation_history
-            .filter((c) => c.question && c.response)
-            .map((c) => `USER: ${c.question}\nASSISTANT: ${c.response}`)
-            .join('\n\n') +
-          (conversation_history.length > 0 ? '\n\n' : '') +
-          `USER: ${currentQuestion}`,
-        custom_prompt: 'Responda sempre em pt-br',
+        conversation_history: conversationHistory,
+        custom_prompt: `Responda sempre em pt-br. ${webSearchResults ? `\n\nInformações da busca na web:\n${webSearchResults}\n\nUse essas informações para enriquecer sua resposta quando relevante.` : ''}`,
         user_screen_content: screenshotResult || '',
         live_transcription: currentTranscription || '',
       });
+      
       const newResponse = await client.createChatCompletion(prompt);
       setCurrentResponse(newResponse);
       if (newResponse && currentQuestion) {
@@ -114,12 +141,15 @@ const Chat = ({
       }
       setIsLoading(false);
       setIsWaitingForScreenshot(false);
+      
+      onSmartModeChange?.(false);
+      onSearchModeChange?.(false);
     };
 
     if (!isAnalyzingScreen) {
       processAiResponse();
     }
-  }, [isAnalyzingScreen, isWaitingForScreenshot, screenshotResult, currentQuestion, currentTranscription]);
+  }, [isAnalyzingScreen, isWaitingForScreenshot, screenshotResult, currentQuestion, currentTranscription, isSmartMode, isSearchMode]);
 
   return (
     <div className="flex flex-col items-center w-[700px]">
@@ -137,7 +167,7 @@ const Chat = ({
                   {isAnalyzingScreen
                     ? 'Analyzing your screen...'
                     : isLoading
-                    ? 'Thinking...'
+                    ? isSearchMode ? 'Searching the web and thinking...' : 'Thinking...'
                     : 'AI Response'}
                 </span>
               </div>
@@ -209,6 +239,8 @@ const Chat = ({
           onSendMessage={handleSendMessage}
           isLoading={isLoading || isAnalyzingScreen}
           isChatVisible={!!currentQuestion}
+          onSmartModeChange={onSmartModeChange}
+          onSearchModeChange={onSearchModeChange}
         />
       )}
     </div>
