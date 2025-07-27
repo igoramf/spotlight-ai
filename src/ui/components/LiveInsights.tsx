@@ -18,14 +18,14 @@ interface LiveInsightsProps {
   currentTranscription: string;
   isRecording: boolean;
   isTranscribing: boolean;
-  onAskCluely: (question: string) => void;
+  onSendMessage: (message: string) => void;
 }
 
 const LiveInsights = ({ 
   currentTranscription, 
   isRecording, 
   isTranscribing,
-  onAskCluely 
+  onSendMessage 
 }: LiveInsightsProps) => {
   const [activeTab, setActiveTab] = useState('summary');
   
@@ -70,7 +70,7 @@ const LiveInsights = ({
   const actions = generateActions();
 
   const handleActionClick = (actionText: string) => {
-    onAskCluely(actionText);
+    onSendMessage(actionText);
   };
 
   const generateSummary = () => {
@@ -163,7 +163,7 @@ const LiveInsights = ({
                 <Button 
                   size="sm" 
                   className="w-full h-8 text-xs bg-blue-600 hover:bg-blue-700 transition-colors"
-                  onClick={() => onAskCluely("Analyze the current transcription and provide insights")}
+                  onClick={() => onSendMessage("Analyze the current transcription and provide insights")}
                 >
                   💬 Ask Cluely
                 </Button>

@@ -81,6 +81,21 @@ const CluelyInterface = () => {
     window.dispatchEvent(event);
   };
 
+  const handleSendMessageFromLiveInsights = (message: string) => {
+    if (!showChat) {
+      setShowChat(true);
+    }
+    
+    if (!showInput) {
+      setShowInput(true);
+    }
+
+    // Não cria nova conversa, usa a existente
+    
+    const event = new CustomEvent('cluelyQuestion', { detail: { question: message } });
+    window.dispatchEvent(event);
+  };
+
   const handlePreviousConversation = () => {
     setActiveConversationIndex((prev) => {
       const newIndex = Math.max(0, prev - 1);
@@ -196,7 +211,7 @@ const CluelyInterface = () => {
                   currentTranscription={currentTranscription}
                   isRecording={isRecording}
                   isTranscribing={isTranscribing}
-                  onAskCluely={handleAskCluely}
+                  onSendMessage={handleSendMessageFromLiveInsights}
                 />
               </div>
               
@@ -222,7 +237,7 @@ const CluelyInterface = () => {
                     currentTranscription={currentTranscription}
                     isRecording={isRecording}
                     isTranscribing={isTranscribing}
-                    onAskCluely={handleAskCluely}
+                    onSendMessage={handleSendMessageFromLiveInsights}
                   />
                 </div>
               )}
