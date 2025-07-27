@@ -51,7 +51,6 @@ export class LiveTranscriptionManager {
       throw new Error('API key not found');
     }
 
-    // Usar Live API do Gemini via WebSocket
     const url = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${apiKey}`;
     
     this.liveSession = new WebSocket(url);
@@ -60,7 +59,6 @@ export class LiveTranscriptionManager {
       this.liveSession!.onopen = () => {
         console.log('Live API WebSocket connected');
         
-        // Configuração mínima e correta conforme Live API
         const setupMessage = {
           setup: {
             model: "models/gemini-2.0-flash-exp",
@@ -75,7 +73,6 @@ export class LiveTranscriptionManager {
           }
         };
 
-        console.log('Sending setup message:', JSON.stringify(setupMessage, null, 2));
         this.liveSession!.send(JSON.stringify(setupMessage));
         resolve(this.liveSession!);
       };
@@ -83,16 +80,11 @@ export class LiveTranscriptionManager {
       this.liveSession!.onmessage = (event: any) => {
         try {
           const data = JSON.parse(event.data.toString());
-          console.log('Live API message:', data);
           
-          // Processar transcrições de entrada
           if (data.serverContent?.inputTranscription?.text) {
             const transcription = data.serverContent.inputTranscription.text;
             const timestamp = new Date().toISOString();
             
-            console.log('Input transcription:', transcription);
-            
-            // Notificar todos os callbacks registrados
             this.transcriptionCallbacks.forEach(callback => {
               callback({
                 transcription,
@@ -102,14 +94,11 @@ export class LiveTranscriptionManager {
             });
           }
           
-          // Processar transcrições de texto retornado pelo modelo
           if (data.serverContent?.modelTurn?.parts) {
             for (const part of data.serverContent.modelTurn.parts) {
               if (part.text) {
                 const transcription = part.text;
                 const timestamp = new Date().toISOString();
-                
-                console.log('Model response:', transcription);
                 
                 this.transcriptionCallbacks.forEach(callback => {
                   callback({
@@ -145,7 +134,6 @@ export class LiveTranscriptionManager {
       return;
     }
 
-    // Enviar áudio no formato PCM 16kHz (já convertido no renderer)
     const message = {
       realtimeInput: {
         mediaChunks: [{
@@ -155,7 +143,6 @@ export class LiveTranscriptionManager {
       }
     };
 
-    console.log('Sending PCM audio chunk, size:', pcmData.length);
     this.liveSession.send(JSON.stringify(message));
   }
 
@@ -176,7 +163,6 @@ export class LiveTranscriptionManager {
   removeCallback(sessionId: string): void {
     this.transcriptionCallbacks.delete(sessionId);
     
-    // Se não há mais callbacks, fechar sessão
     if (this.transcriptionCallbacks.size === 0 && this.liveSession) {
       this.liveSession.close();
       this.liveSession = null;

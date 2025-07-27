@@ -64,7 +64,6 @@ const Chat = ({
     setCurrentResponse(conversation?.response || null);
   }, [conversation]);
 
-  // Notify parent component when processing state changes
   useEffect(() => {
     const isProcessing = isLoading || isAnalyzingScreen;
     onProcessingChange?.(isProcessing);
@@ -74,17 +73,8 @@ const Chat = ({
     if (currentResponse) {
       try {
         await navigator.clipboard.writeText(currentResponse);
-        // toast({
-        //   title: "Copiado!",
-        //   description: "Resposta copiada para a área de transferência.",
-        // });
       } catch (err) {
         console.error('Failed to copy text: ', err);
-        // toast({
-        //   title: "Erro",
-        //   description: "Não foi possível copiar o texto.",
-        //   variant: "destructive",
-        // });
       }
     }
   };
@@ -95,7 +85,6 @@ const Chat = ({
     setCurrentResponse(null);
     setIsWaitingForScreenshot(true);
     
-    // Call onMessageSent immediately when message is sent
     onMessageSent?.();
     
     await handleScreenshot(message);

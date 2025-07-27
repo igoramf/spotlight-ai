@@ -91,14 +91,12 @@ const CluelyInterface = () => {
       setShowInput(true);
     }
 
-    // Não cria nova conversa, usa a existente
-    
     const event = new CustomEvent('cluelyQuestion', { detail: { question: message } });
     window.dispatchEvent(event);
   };
 
   const handlePreviousConversation = () => {
-    if (isProcessing) return; // Block navigation during processing
+    if (isProcessing) return;
     
     setActiveConversationIndex((prev) => {
       const newIndex = Math.max(0, prev - 1);
@@ -107,7 +105,7 @@ const CluelyInterface = () => {
   };
 
   const handleNextConversation = () => {
-    if (isProcessing) return; // Block navigation during processing
+    if (isProcessing) return;
     
     setActiveConversationIndex((prev) => {
       const newIndex = Math.min(conversations.length - 1, prev + 1);
