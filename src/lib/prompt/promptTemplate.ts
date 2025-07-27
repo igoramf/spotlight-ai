@@ -102,6 +102,10 @@ You are an assistant called Cluely, developed and created by Cluely, whose sole 
 {{user_screen_content}}
 </user_screen_content>
 
+<live_transcription>
+{{live_transcription}}
+</live_transcription>
+
 <conversation_history>
 {{conversation_history}}
 </conversation_history>`; 

@@ -230,6 +230,7 @@ const CluelyInterface = () => {
                   onSendMessage={handleSendMessage}
                   onMessageSent={handleMessageSent}
                   onProcessingChange={setIsProcessing}
+                  currentTranscription={currentTranscription}
                 />
               </div>
               
@@ -249,18 +250,17 @@ const CluelyInterface = () => {
               )}
               
               {showChat && (
-                <div>
-                  <Chat
-                    setShowChat={setShowChat}
-                    showInput={showInput}
-                    conversation={conversations[activeConversationIndex]}
-                    conversation_history={conversations}
-                    onNewConversation={handleNewConversation}
-                    onSendMessage={handleSendMessage}
-                    onMessageSent={handleMessageSent}
-                    onProcessingChange={setIsProcessing}
-                  />
-                </div>
+                <Chat
+                  setShowChat={setShowChat}
+                  showInput={showInput}
+                  conversation={conversations[activeConversationIndex]}
+                  conversation_history={conversations}
+                  onNewConversation={handleNewConversation}
+                  onSendMessage={handleSendMessage}
+                  onMessageSent={handleMessageSent}
+                  onProcessingChange={setIsProcessing}
+                  currentTranscription={currentTranscription}
+                />
               )}
             </div>
           )}

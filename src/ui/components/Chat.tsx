@@ -30,6 +30,7 @@ interface ChatProps {
   conversation_history: Conversation[];
   onMessageSent?: () => void;
   onProcessingChange?: (isProcessing: boolean) => void;
+  currentTranscription?: string;
 }
 
 const Chat = ({
@@ -41,6 +42,7 @@ const Chat = ({
   conversation_history,
   onMessageSent,
   onProcessingChange,
+  currentTranscription,
 }: ChatProps) => {
   const {
     AnalyzingScreen: isAnalyzingScreen,
@@ -114,6 +116,7 @@ const Chat = ({
           `USER: ${currentQuestion}`,
         custom_prompt: 'Responda sempre em pt-br',
         user_screen_content: screenshotResult || '',
+        live_transcription: currentTranscription || '',
       });
       const newResponse = await client.createChatCompletion(prompt);
       setCurrentResponse(newResponse);
@@ -127,7 +130,7 @@ const Chat = ({
     if (!isAnalyzingScreen) {
       processAiResponse();
     }
-  }, [isAnalyzingScreen, isWaitingForScreenshot, screenshotResult, currentQuestion]);
+  }, [isAnalyzingScreen, isWaitingForScreenshot, screenshotResult, currentQuestion, currentTranscription]);
 
   return (
     <div className="flex flex-col items-center w-[700px]">
