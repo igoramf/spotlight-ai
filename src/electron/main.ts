@@ -3,7 +3,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { isDev } from './util.js';
 import fs from 'fs';
-import { WebSocketServer } from 'ws';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 
@@ -14,7 +13,6 @@ const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null = null;
 let contentProtectionEnabled: boolean = true;
-let wss: WebSocketServer | null = null;
 let geminiClient: GoogleGenerativeAI | null = null;
 
 function initializeGemini() {
@@ -37,56 +35,18 @@ function initializeGemini() {
   }
 }
 
-function setupWebSocketServer() {
-  wss = new WebSocketServer({ port: 8080 });
-  console.log('WebSocket server started on port 8080');
-
-  wss.on('connection', (ws) => {
-    console.log('Client connected to transcription WebSocket');
-
-    ws.on('message', async (message) => {
-      try {
-        const data = JSON.parse(message.toString());
-        
-        if (data.type === 'audio-chunk') {
-          await handleAudioTranscription(ws, data.audioData, data.mimeType);
-        }
-      } catch (error) {
-        console.error('Error processing WebSocket message:', error);
-        ws.send(JSON.stringify({
-          type: 'error',
-          message: 'Error processing audio chunk'
-        }));
-      }
-    });
-
-    ws.on('close', () => {
-      console.log('Client disconnected from transcription WebSocket');
-    });
-  });
-}
-
-async function handleAudioTranscription(ws: any, audioBase64: string, mimeType: string) {
+async function handleAudioTranscription(audioBase64: string, mimeType: string) {
   if (!geminiClient) {
     console.error('Gemini client not initialized - attempting to reinitialize...');
     initializeGemini();
     
     if (!geminiClient) {
-      ws.send(JSON.stringify({
-        type: 'error',
-        message: 'Gemini client not available. Please check API key configuration.'
-      }));
-      return;
+      throw new Error('Gemini client not available. Please check API key configuration.');
     }
   }
 
   try {
     console.log('Processing audio transcription...');
-    
-    ws.send(JSON.stringify({
-      type: 'transcription-status',
-      status: 'processing'
-    }));
 
     const model = geminiClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
@@ -108,21 +68,26 @@ async function handleAudioTranscription(ws: any, audioBase64: string, mimeType: 
 
     console.log('Transcription result:', transcription);
 
-    ws.send(JSON.stringify({
-      type: 'transcription-result',
-      transcription: transcription,
+    return {
+      transcription,
       timestamp: new Date().toISOString()
-    }));
+    };
 
   } catch (error) {
     console.error('Error in Gemini transcription:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    ws.send(JSON.stringify({
-      type: 'error',
-      message: `Transcription failed: ${errorMessage}`
-    }));
+    throw new Error(`Transcription failed: ${errorMessage}`);
   }
 }
+
+ipcMain.handle('transcribe-audio-chunk', async (_event, audioData: string, mimeType: string) => {
+  try {
+    return await handleAudioTranscription(audioData, mimeType);
+  } catch (error) {
+    console.error('Error in transcribe-audio-chunk:', error);
+    throw error;
+  }
+});
 
 ipcMain.handle('set-content-protection', (_event, flag: boolean) => {
   contentProtectionEnabled = Boolean(flag);
@@ -196,10 +161,8 @@ function registerMoveShortcuts(win: BrowserWindow) {
 }
 
 app.on('ready', () => {
-
   console.log('App ready - initializing services...');
   initializeGemini();
-  setupWebSocketServer();
 
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
@@ -259,9 +222,6 @@ app.on('ready', () => {
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
-  if (wss) {
-    wss.close();
-  }
 });
 
 app.on('window-all-closed', () => {
@@ -269,3 +229,4 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+

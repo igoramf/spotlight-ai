@@ -9,86 +9,36 @@ export const useAudioRecording = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
   
   // For continuous chunk recording
   const chunkRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunkIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
 
-  // Initialize WebSocket connection
-  const connectWebSocket = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) return;
-
-    try {
-      wsRef.current = new WebSocket('ws://localhost:8080');
-      
-      wsRef.current.onopen = () => {
-        console.log('Connected to transcription WebSocket');
-      };
-      
-      wsRef.current.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          
-          switch (data.type) {
-            case 'transcription-status':
-              setIsTranscribing(data.status === 'processing');
-              break;
-              
-            case 'transcription-result':
-              if (data.transcription && data.transcription !== '...') {
-                const timestamp = new Date(data.timestamp).toLocaleTimeString();
-                setCurrentTranscription(prev => {
-                  const newText = `[${timestamp}] ${data.transcription}`;
-                  return prev ? `${prev}\n${newText}` : newText;
-                });
-              }
-              setIsTranscribing(false);
-              break;
-              
-            case 'error':
-              console.error('WebSocket transcription error:', data.message);
-              setIsTranscribing(false);
-              break;
-          }
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-      
-      wsRef.current.onclose = () => {
-        console.log('WebSocket connection closed');
-        wsRef.current = null;
-      };
-      
-      wsRef.current.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-      
-    } catch (error) {
-      console.error('Failed to connect to WebSocket:', error);
-    }
-  }, []);
-
-  // Send audio chunk to WebSocket
+  // Send audio chunk via IPC
   const sendAudioChunk = useCallback(async (audioBlob: Blob) => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      console.warn('WebSocket not connected, skipping transcription');
-      return;
-    }
-
     try {
+      setIsTranscribing(true);
+      
       const arrayBuffer = await audioBlob.arrayBuffer();
       const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
       
-      wsRef.current.send(JSON.stringify({
-        type: 'audio-chunk',
-        audioData: base64,
-        mimeType: audioBlob.type
-      }));
+      const result = await (window as any).electronAPI.transcribeAudioChunk(
+        base64,
+        audioBlob.type
+      );
+      
+      setIsTranscribing(false);
+      
+      if (result.transcription && result.transcription !== '...') {
+        const timestamp = new Date(result.timestamp).toLocaleTimeString();
+        setCurrentTranscription(prev => {
+          const newText = `[${timestamp}] ${result.transcription}`;
+          return prev ? `${prev}\n${newText}` : newText;
+        });
+      }
     } catch (error) {
-      console.error('Error sending audio chunk:', error);
+      console.error('Error in transcription:', error);
+      setIsTranscribing(false);
     }
   }, []);
 
@@ -146,9 +96,6 @@ export const useAudioRecording = () => {
 
   const startRecording = useCallback(async () => {
     try {
-      // Connect to WebSocket
-      connectWebSocket();
-      
       // Request both microphone and screen audio
       const micStream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -241,7 +188,7 @@ export const useAudioRecording = () => {
       console.error('Error starting recording:', error);
       throw error;
     }
-  }, [connectWebSocket]);
+  }, []);
 
   // Setup chunk recording when recording starts
   useEffect(() => {
@@ -274,12 +221,6 @@ export const useAudioRecording = () => {
         timerRef.current = null;
       }
 
-      // Close WebSocket
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-
       // Clear mic stream ref
       micStreamRef.current = null;
     }
@@ -297,9 +238,6 @@ export const useAudioRecording = () => {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }

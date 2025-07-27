@@ -16,4 +16,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveAudioRecording: (audioData: ArrayBuffer, filename: string): Promise<{ success: boolean; filePath: string }> => {
     return ipcRenderer.invoke('save-audio-recording', audioData, filename);
   },
+  transcribeAudioChunk: (audioData: string, mimeType: string): Promise<{ transcription: string; timestamp: string }> => {
+    return ipcRenderer.invoke('transcribe-audio-chunk', audioData, mimeType);
+  },
 });
