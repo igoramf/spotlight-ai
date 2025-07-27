@@ -38,7 +38,7 @@ const SettingsInterface = ({
   };
 
   return (
-    <Card className="w-[200px] bg-gray-900/95 backdrop-blur-sm border-gray-700 text-gray-300 absolute top-12 z-10 right-0">
+    <Card className="w-[200px] bg-gray-900/95 backdrop-blur-sm border-gray-700 text-gray-300">
       <CardContent className="p-2 pt-0">
         <div className="space-y-2">
           <div>

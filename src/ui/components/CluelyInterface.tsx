@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Settings, Eye, EyeOff, Mic, AudioLinesIcon } from 'lucide-react';
@@ -18,6 +19,7 @@ const CluelyInterface = () => {
     { id: 0, question: null, response: null },
   ]);
   const [activeConversationIndex, setActiveConversationIndex] = useState(0);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
 
   const { 
     isRecording, 
@@ -166,15 +168,21 @@ const CluelyInterface = () => {
                   <span className="ml-1 px-1.5 py-0.5 bg-gray-700 rounded text-xs text-gray-300">X</span>
                 </Button>
                 
-                <Button variant="ghost" size="sm" className="text-gray-300 hover:bg-gray-800" onClick={() => setShowSettings(!showSettings)}>
-                  <Settings className="w-4 h-4" />
-                </Button>
+                <div className="relative">
+                  <Button 
+                    ref={settingsButtonRef}
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-gray-300 hover:bg-gray-800" 
+                    onClick={() => setShowSettings(!showSettings)}
+                  >
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
-
-        {showSettings && <SettingsInterface setShowSettings={setShowSettings} />}
 
         <div className="mt-4 w-full">
           {showChat && isRecording ? (
@@ -230,6 +238,20 @@ const CluelyInterface = () => {
           )}
         </div>
       </div>
+      
+      {showSettings && settingsButtonRef.current && createPortal(
+        <div 
+          className="fixed z-[9999999]"
+          style={{
+            top: `${settingsButtonRef.current.getBoundingClientRect().bottom + 8}px`,
+            right: `${window.innerWidth - settingsButtonRef.current.getBoundingClientRect().right}px`,
+            zIndex: 9999999
+          }}
+        >
+          <SettingsInterface setShowSettings={setShowSettings} />
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
