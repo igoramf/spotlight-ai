@@ -62,6 +62,10 @@ const CluelyInterface = () => {
     setConversations(updatedConversations);
   };
 
+  const handleMessageSent = () => {
+    setShowInput(false);
+  };
+
   const handleAskCluely = (question: string) => {
     if (!showChat) {
       setShowChat(true);
@@ -204,6 +208,7 @@ const CluelyInterface = () => {
                   conversation_history={conversations}
                   onNewConversation={handleNewConversation}
                   onSendMessage={handleSendMessage}
+                  onMessageSent={handleMessageSent}
                 />
               </div>
               
@@ -231,6 +236,7 @@ const CluelyInterface = () => {
                     conversation_history={conversations}
                     onNewConversation={handleNewConversation}
                     onSendMessage={handleSendMessage}
+                    onMessageSent={handleMessageSent}
                   />
                 </div>
               )}

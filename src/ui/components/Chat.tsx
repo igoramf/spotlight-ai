@@ -28,6 +28,7 @@ interface ChatProps {
   onNewConversation: () => void;
   onSendMessage: (message: string, response: string) => void;
   conversation_history: Conversation[];
+  onMessageSent?: () => void;
 }
 
 const Chat = ({
@@ -37,6 +38,7 @@ const Chat = ({
   onNewConversation,
   onSendMessage,
   conversation_history,
+  onMessageSent,
 }: ChatProps) => {
   const {
     AnalyzingScreen: isAnalyzingScreen,
@@ -82,6 +84,10 @@ const Chat = ({
     setIsLoading(true);
     setCurrentResponse(null);
     setIsWaitingForScreenshot(true);
+    
+    // Call onMessageSent immediately when message is sent
+    onMessageSent?.();
+    
     await handleScreenshot(message);
   };
 
