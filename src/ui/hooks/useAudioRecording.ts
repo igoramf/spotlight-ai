@@ -2,9 +2,11 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 
 export const useAudioRecording = () => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [currentTranscription, setCurrentTranscription] = useState('');
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isPreConnected, setIsPreConnected] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -13,6 +15,24 @@ export const useAudioRecording = () => {
   
   const chunkRecorderRef = useRef<MediaRecorder | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
+
+  useEffect(() => {
+    const preConnect = async () => {
+      try {
+        if (!sessionIdRef.current && !isPreConnected) {
+          console.log('Pre-connecting transcription session...');
+          const session = await (window as any).electronAPI.startLiveTranscription();
+          sessionIdRef.current = session.sessionId;
+          setIsPreConnected(true);
+          console.log('Pre-connection established:', session.sessionId);
+        }
+      } catch (error) {
+        console.warn('Pre-connection failed:', error);
+      }
+    };
+
+    preConnect();
+  }, [isPreConnected]);
 
   useEffect(() => {
     const handleTranscriptionUpdate = (result: any) => {
@@ -129,17 +149,25 @@ export const useAudioRecording = () => {
 
   const startRecording = useCallback(async () => {
     try {
-      const session = await (window as any).electronAPI.startLiveTranscription();
-      sessionIdRef.current = session.sessionId;
-      console.log('Live transcription started:', session.sessionId);
+      setIsConnecting(true);
       
-      const micStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: false,
-        },
-      });
+      if (!sessionIdRef.current) {
+        const session = await (window as any).electronAPI.startLiveTranscription();
+        sessionIdRef.current = session.sessionId;
+        console.log('Live transcription started:', session.sessionId);
+      } else {
+        console.log('Using pre-connected session:', sessionIdRef.current);
+      }
+      
+      const [micStream] = await Promise.all([
+        navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+          },
+        })
+      ]);
 
       micStreamRef.current = micStream;
 
@@ -205,6 +233,7 @@ export const useAudioRecording = () => {
       mediaRecorderRef.current = mediaRecorder;
       mediaRecorder.start();
       setIsRecording(true);
+      setIsConnecting(false);
 
       setRecordingTime(0);
       timerRef.current = setInterval(() => {
@@ -213,6 +242,7 @@ export const useAudioRecording = () => {
 
     } catch (error) {
       console.error('Error starting recording:', error);
+      setIsConnecting(false);
       throw error;
     }
   }, []);
@@ -279,6 +309,7 @@ export const useAudioRecording = () => {
 
   return {
     isRecording,
+    isConnecting,
     recordingTime,
     currentTranscription,
     isTranscribing,

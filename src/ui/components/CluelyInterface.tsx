@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { Settings, Eye, EyeOff, Mic, AudioLinesIcon } from 'lucide-react';
+import { Settings, Eye, EyeOff, Mic, AudioLinesIcon, Loader2 } from 'lucide-react';
 import Chat from './Chat';
 import { Conversation } from '../types';
 import SettingsInterface from './SettingsInterface';
@@ -24,6 +24,7 @@ const CluelyInterface = () => {
 
   const { 
     isRecording, 
+    isConnecting,
     recordingTime, 
     toggleRecording, 
     currentTranscription, 
@@ -149,6 +150,32 @@ const CluelyInterface = () => {
     };
   }, [conversations, handlePreviousConversation, handleNextConversation]);
 
+  const getListenButtonContent = () => {
+    if (isConnecting) {
+      return (
+        <>
+          <Loader2 className="w-4 h-4 animate-spin" />
+        </>
+      );
+    }
+    
+    if (isRecording) {
+      return (
+        <>
+          Listen ({timer})
+          <AudioLinesIcon className="text-red-500 animate-pulse" />
+        </>
+      );
+    }
+    
+    return (
+      <>
+        Listen
+        <AudioLinesIcon className="text-gray-300 border-gray-600" />
+      </>
+    );
+  };
+
   return (
     <div className="w-full min-h-screen">
       <div className="flex flex-col items-center">
@@ -161,10 +188,10 @@ const CluelyInterface = () => {
                   size="xs"
                   className="flex items-center gap-1 text-gray-300 border-gray-600 h-8 px-2"
                   onClick={toggleRecording}
+                  disabled={isConnecting}
                   aria-label={isRecording ? 'Stop recording' : 'Start recording'}
                 >
-                  Listen {isRecording && `(${timer})`}
-                  <AudioLinesIcon className={isRecording ? 'text-red-500 animate-pulse' : 'text-gray-300 border-gray-600'} />
+                  {getListenButtonContent()}
                 </Button>
 
                 <Button 

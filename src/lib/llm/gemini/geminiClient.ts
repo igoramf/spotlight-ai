@@ -70,7 +70,7 @@ export class GeminiClient {
 
   async transcribeAudio(audioBase64: string, mimeType: string, language: string = "pt-BR") {
     try {
-      const model = this.getModel(); // Using Gemini Flash for audio transcription
+      const model = this.getModel();
       
       const audioData = {
         inlineData: {

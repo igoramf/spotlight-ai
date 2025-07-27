@@ -52,7 +52,7 @@ const LiveInsights = ({
     { icon: Brain, text: "Think of another question", color: "bg-purple-500" }
   ];
 
-  // Use dynamic actions if available, otherwise fall back to static ones
+
   const actions = dynamicInsights.actions.length > 0 ? 
     dynamicInsights.actions.map(action => ({
       ...action,
