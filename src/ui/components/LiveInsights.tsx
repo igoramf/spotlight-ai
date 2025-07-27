@@ -13,6 +13,7 @@ import {
   Lightbulb, 
   Brain 
 } from 'lucide-react';
+import { useDynamicInsights } from '../hooks/useDynamicInsights';
 
 interface LiveInsightsProps {
   currentTranscription: string;
@@ -28,30 +29,39 @@ const LiveInsights = ({
   onSendMessage 
 }: LiveInsightsProps) => {
   const [activeTab, setActiveTab] = useState('summary');
+  const dynamicInsights = useDynamicInsights(currentTranscription, isRecording);
   
-  const generateActions = () => {
-    return [
-      { icon: Lightbulb, text: "Give me help with productivity", color: "bg-yellow-500" },
-      { icon: HelpCircle, text: "Suggest follow-up questions", color: "bg-blue-500" },
-      { icon: Brain, text: "Think of another question", color: "bg-purple-500" }
-    ];
-  };
 
-  const actions = generateActions();
+  const getIconComponent = (iconName: string) => {
+    const iconMap: { [key: string]: any } = {
+      'HelpCircle': HelpCircle,
+      'Lightbulb': Lightbulb,
+      'Brain': Brain,
+      'BookOpen': BookOpen,
+      'Globe': Globe,
+      'MapPin': MapPin,
+      'Building2': Building2
+    };
+    return iconMap[iconName] || HelpCircle;
+  };
+  
+  // Static fallback actions when no dynamic actions are available
+  const staticActions = [
+    { icon: Lightbulb, text: "Give me help with productivity", color: "bg-yellow-500" },
+    { icon: HelpCircle, text: "Suggest follow-up questions", color: "bg-blue-500" },
+    { icon: Brain, text: "Think of another question", color: "bg-purple-500" }
+  ];
+
+  // Use dynamic actions if available, otherwise fall back to static ones
+  const actions = dynamicInsights.actions.length > 0 ? 
+    dynamicInsights.actions.map(action => ({
+      ...action,
+      icon: getIconComponent(action.icon)
+    })) : 
+    staticActions;
 
   const handleActionClick = (actionText: string) => {
     onSendMessage(actionText);
-  };
-
-  const generateSummary = () => {
-    if (!currentTranscription) {
-      return "Start recording to see live insights and summaries of your conversation.";
-    }
-
-    const lines = currentTranscription.split('\n').filter(line => line.trim());
-    if (lines.length === 0) return "Recording in progress...";
-
-    return `Live transcription active. ${lines.length} segments captured. Key topics detected from recent audio.`;
   };
 
   return (
@@ -61,6 +71,12 @@ const LiveInsights = ({
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-gray-100">Live Insights</h3>
             <div className="flex items-center gap-2">
+              {dynamicInsights.isAnalyzing && (
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-gray-400">Analyzing...</span>
+                </div>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -84,7 +100,7 @@ const LiveInsights = ({
             
             <TabsContent value="summary" className="mt-3">
               <div className="text-xs text-gray-300 bg-gray-800/50 rounded-md p-3 leading-relaxed">
-                {generateSummary()}
+                {dynamicInsights.isAnalyzing ? "Analyzing screen and transcription..." : dynamicInsights.summary}
               </div>
             </TabsContent>
             
