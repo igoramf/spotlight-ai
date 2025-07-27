@@ -19,6 +19,7 @@ const CluelyInterface = () => {
     { id: 0, question: null, response: null },
   ]);
   const [activeConversationIndex, setActiveConversationIndex] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
 
   const { 
@@ -97,6 +98,8 @@ const CluelyInterface = () => {
   };
 
   const handlePreviousConversation = () => {
+    if (isProcessing) return; // Block navigation during processing
+    
     setActiveConversationIndex((prev) => {
       const newIndex = Math.max(0, prev - 1);
       return newIndex;
@@ -104,6 +107,8 @@ const CluelyInterface = () => {
   };
 
   const handleNextConversation = () => {
+    if (isProcessing) return; // Block navigation during processing
+    
     setActiveConversationIndex((prev) => {
       const newIndex = Math.min(conversations.length - 1, prev + 1);
       return newIndex;
@@ -224,6 +229,7 @@ const CluelyInterface = () => {
                   onNewConversation={handleNewConversation}
                   onSendMessage={handleSendMessage}
                   onMessageSent={handleMessageSent}
+                  onProcessingChange={setIsProcessing}
                 />
               </div>
               
@@ -252,6 +258,7 @@ const CluelyInterface = () => {
                     onNewConversation={handleNewConversation}
                     onSendMessage={handleSendMessage}
                     onMessageSent={handleMessageSent}
+                    onProcessingChange={setIsProcessing}
                   />
                 </div>
               )}

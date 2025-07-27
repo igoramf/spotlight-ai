@@ -29,6 +29,7 @@ interface ChatProps {
   onSendMessage: (message: string, response: string) => void;
   conversation_history: Conversation[];
   onMessageSent?: () => void;
+  onProcessingChange?: (isProcessing: boolean) => void;
 }
 
 const Chat = ({
@@ -39,6 +40,7 @@ const Chat = ({
   onSendMessage,
   conversation_history,
   onMessageSent,
+  onProcessingChange,
 }: ChatProps) => {
   const {
     AnalyzingScreen: isAnalyzingScreen,
@@ -59,6 +61,12 @@ const Chat = ({
     setCurrentQuestion(conversation?.question || null);
     setCurrentResponse(conversation?.response || null);
   }, [conversation]);
+
+  // Notify parent component when processing state changes
+  useEffect(() => {
+    const isProcessing = isLoading || isAnalyzingScreen;
+    onProcessingChange?.(isProcessing);
+  }, [isLoading, isAnalyzingScreen, onProcessingChange]);
 
   const handleCopy = async () => {
     if (currentResponse) {
