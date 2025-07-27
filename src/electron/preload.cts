@@ -16,7 +16,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveAudioRecording: (audioData: ArrayBuffer, filename: string): Promise<{ success: boolean; filePath: string }> => {
     return ipcRenderer.invoke('save-audio-recording', audioData, filename);
   },
-  transcribeAudioChunk: (audioData: string, mimeType: string): Promise<{ transcription: string; timestamp: string }> => {
-    return ipcRenderer.invoke('transcribe-audio-chunk', audioData, mimeType);
+  // Live API functions
+  startLiveTranscription: (): Promise<{ sessionId: string; success: boolean }> => {
+    return ipcRenderer.invoke('start-live-transcription');
+  },
+  stopLiveTranscription: (sessionId: string): Promise<{ success: boolean }> => {
+    return ipcRenderer.invoke('stop-live-transcription', sessionId);
+  },
+  sendAudioChunk: (pcmData: string): Promise<{ success: boolean }> => {
+    return ipcRenderer.invoke('send-audio-chunk', pcmData);
+  },
+  onTranscriptionUpdate: (callback: Function) => {
+    ipcRenderer.on('transcription-update', (_event, result) => callback(result));
+  },
+  removeTranscriptionListener: () => {
+    ipcRenderer.removeAllListeners('transcription-update');
   },
 });

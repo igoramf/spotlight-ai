@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { isDev } from './util.js';
 import fs from 'fs';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { LiveTranscriptionManager } from './liveTranscription.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,78 +13,55 @@ const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null = null;
 let contentProtectionEnabled: boolean = true;
-let geminiClient: GoogleGenerativeAI | null = null;
+let transcriptionManager: LiveTranscriptionManager | null = null;
 
-function initializeGemini() {
-  const apiKey = process.env.VITE_GEMINI_API_KEY || 
-                 process.env.GEMINI_API_KEY || 
-                 process.env.GOOGLE_API_KEY;
-  
-  console.log('Initializing Gemini with API key:', apiKey ? 'Found' : 'Not found');
-  
-  if (apiKey) {
-    try {
-      geminiClient = new GoogleGenerativeAI(apiKey);
-      console.log('Gemini client initialized successfully');
-    } catch (error) {
-      console.error('Error initializing Gemini client:', error);
-    }
-  } else {
-    console.warn('No Gemini API key found. Please check your .env file.');
-    console.warn('Expected environment variables: VITE_GEMINI_API_KEY, GEMINI_API_KEY, or GOOGLE_API_KEY');
-  }
+// Inicializar gerenciador de transcrição
+function initializeTranscription() {
+  transcriptionManager = new LiveTranscriptionManager();
+  console.log('Live transcription manager initialized');
 }
 
-async function handleAudioTranscription(audioBase64: string, mimeType: string) {
-  if (!geminiClient) {
-    console.error('Gemini client not initialized - attempting to reinitialize...');
-    initializeGemini();
-    
-    if (!geminiClient) {
-      throw new Error('Gemini client not available. Please check API key configuration.');
+ipcMain.handle('start-live-transcription', async (event) => {
+  try {
+    if (!transcriptionManager) {
+      initializeTranscription();
     }
-  }
-
-  try {
-    console.log('Processing audio transcription...');
-
-    const model = geminiClient.getGenerativeModel({ model: 'gemini-2.5-flash' });
     
-    const audioData = {
-      inlineData: {
-        data: audioBase64,
-        mimeType: mimeType,
-      },
-    };
-
-    const prompt = `Transcreva o áudio fornecido para texto em pt-BR. 
-    Forneça apenas a transcrição do que foi falado, sem comentários adicionais.
-    Se não houver fala audível, responda apenas "..." 
-    Mantenha a formatação natural da fala com pontuação apropriada.`;
+    const sessionId = await transcriptionManager!.startSession();
     
-    const result = await model.generateContent([prompt, audioData]);
-    const response = await result.response;
-    const transcription = response.text().trim();
-
-    console.log('Transcription result:', transcription);
-
-    return {
-      transcription,
-      timestamp: new Date().toISOString()
-    };
-
+    // Registrar callback para este renderer process
+    transcriptionManager!.registerCallback(sessionId, (result) => {
+      event.sender.send('transcription-update', result);
+    });
+    
+    return { sessionId, success: true };
   } catch (error) {
-    console.error('Error in Gemini transcription:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    throw new Error(`Transcription failed: ${errorMessage}`);
+    console.error('Error starting live transcription:', error);
+    throw error;
   }
-}
+});
 
-ipcMain.handle('transcribe-audio-chunk', async (_event, audioData: string, mimeType: string) => {
+ipcMain.handle('stop-live-transcription', async (event, sessionId: string) => {
   try {
-    return await handleAudioTranscription(audioData, mimeType);
+    if (transcriptionManager) {
+      transcriptionManager.removeCallback(sessionId);
+    }
+    
+    return { success: true };
   } catch (error) {
-    console.error('Error in transcribe-audio-chunk:', error);
+    console.error('Error stopping live transcription:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('send-audio-chunk', async (event, pcmData: string) => {
+  try {
+    if (transcriptionManager) {
+      transcriptionManager.sendAudioChunk(pcmData);
+    }
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending audio chunk:', error);
     throw error;
   }
 });
@@ -162,7 +139,7 @@ function registerMoveShortcuts(win: BrowserWindow) {
 
 app.on('ready', () => {
   console.log('App ready - initializing services...');
-  initializeGemini();
+  initializeTranscription();
 
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
@@ -222,6 +199,9 @@ app.on('ready', () => {
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
+  if (transcriptionManager) {
+    transcriptionManager.close();
+  }
 });
 
 app.on('window-all-closed', () => {

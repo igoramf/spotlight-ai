@@ -9,25 +9,16 @@ export const useAudioRecording = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
   
   // For continuous chunk recording
   const chunkRecorderRef = useRef<MediaRecorder | null>(null);
   const micStreamRef = useRef<MediaStream | null>(null);
 
-  // Send audio chunk via IPC
-  const sendAudioChunk = useCallback(async (audioBlob: Blob) => {
-    try {
-      setIsTranscribing(true);
-      
-      const arrayBuffer = await audioBlob.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-      
-      const result = await (window as any).electronAPI.transcribeAudioChunk(
-        base64,
-        audioBlob.type
-      );
-      
-      setIsTranscribing(false);
+  // Setup transcription listener
+  useEffect(() => {
+    const handleTranscriptionUpdate = (result: any) => {
+      console.log('Transcription update:', result);
       
       if (result.transcription && result.transcription !== '...') {
         const timestamp = new Date(result.timestamp).toLocaleTimeString();
@@ -36,11 +27,71 @@ export const useAudioRecording = () => {
           return prev ? `${prev}\n${newText}` : newText;
         });
       }
-    } catch (error) {
-      console.error('Error in transcription:', error);
       setIsTranscribing(false);
+    };
+
+    (window as any).electronAPI.onTranscriptionUpdate(handleTranscriptionUpdate);
+
+    return () => {
+      (window as any).electronAPI.removeTranscriptionListener();
+    };
+  }, []);
+
+  // Converter WebM para PCM 16kHz
+  const convertWebMToPCM = useCallback(async (audioBlob: Blob): Promise<string> => {
+    try {
+      console.log('Converting WebM to PCM...');
+      
+      // Converter Blob para ArrayBuffer
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      
+      // Criar contexto de áudio com 16kHz
+      const audioContext = new AudioContext({ sampleRate: 16000 });
+      
+      // Decodificar áudio
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      
+      // Obter dados do canal (converter para mono se necessário)
+      const channelData = audioBuffer.getChannelData(0);
+      
+      // Converter Float32Array para Int16Array (PCM 16-bit)
+      const pcmData = new Int16Array(channelData.length);
+      for (let i = 0; i < channelData.length; i++) {
+        // Converter de -1.0 a 1.0 para -32768 a 32767
+        pcmData[i] = Math.max(-32768, Math.min(32767, channelData[i] * 32767));
+      }
+      
+      // Converter para base64
+      const pcmBytes = new Uint8Array(pcmData.buffer);
+      let binaryString = '';
+      for (let i = 0; i < pcmBytes.length; i++) {
+        binaryString += String.fromCharCode(pcmBytes[i]);
+      }
+      
+      await audioContext.close();
+      return btoa(binaryString);
+    } catch (error) {
+      console.error('Error converting WebM to PCM:', error);
+      throw error;
     }
   }, []);
+
+  // Send audio chunk via Live API
+  const sendAudioChunk = useCallback(async (audioBlob: Blob) => {
+    try {
+      setIsTranscribing(true);
+      
+      // Converter WebM para PCM 16kHz
+      const pcmData = await convertWebMToPCM(audioBlob);
+      
+      // Enviar dados PCM para o main process
+      await (window as any).electronAPI.sendAudioChunk(pcmData);
+      
+    } catch (error) {
+      console.error('Error sending audio chunk:', error);
+      setIsTranscribing(false);
+    }
+  }, [convertWebMToPCM]);
 
   // Setup continuous chunk recording for transcription
   const setupChunkRecording = useCallback(() => {
@@ -69,14 +120,14 @@ export const useAudioRecording = () => {
 
     chunkRecorderRef.current = chunkRecorder;
 
-    // Start continuous chunk recording
+    // Start continuous chunk recording (reduced to 2 seconds for better responsiveness)
     const startChunkCycle = () => {
       if (chunkRecorderRef.current && isRecording) {
         if (chunkRecorderRef.current.state === 'inactive') {
           chunkRecorderRef.current.start();
         }
         
-        // Stop and restart every 3 seconds
+        // Stop and restart every 2 seconds for Live API
         setTimeout(() => {
           if (chunkRecorderRef.current && chunkRecorderRef.current.state === 'recording') {
             chunkRecorderRef.current.stop();
@@ -87,7 +138,7 @@ export const useAudioRecording = () => {
               }
             }, 100);
           }
-        }, 3000);
+        }, 2000); // Reduced from 3000 to 2000ms for better real-time experience
       }
     };
 
@@ -96,6 +147,11 @@ export const useAudioRecording = () => {
 
   const startRecording = useCallback(async () => {
     try {
+      // Start Live API session
+      const session = await (window as any).electronAPI.startLiveTranscription();
+      sessionIdRef.current = session.sessionId;
+      console.log('Live transcription started:', session.sessionId);
+      
       // Request both microphone and screen audio
       const micStream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -221,6 +277,12 @@ export const useAudioRecording = () => {
         timerRef.current = null;
       }
 
+      // Stop Live API session
+      if (sessionIdRef.current) {
+        (window as any).electronAPI.stopLiveTranscription(sessionIdRef.current);
+        sessionIdRef.current = null;
+      }
+
       // Clear mic stream ref
       micStreamRef.current = null;
     }
@@ -243,6 +305,9 @@ export const useAudioRecording = () => {
       }
       if (chunkRecorderRef.current) {
         chunkRecorderRef.current.stop();
+      }
+      if (sessionIdRef.current) {
+        (window as any).electronAPI.stopLiveTranscription(sessionIdRef.current);
       }
     };
   }, []);
