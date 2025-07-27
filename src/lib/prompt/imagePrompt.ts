@@ -1,1 +1,1 @@
-export const IMAGE_PROMPT = "Based on the image, extract the content that is relevant to use as context to answer the user's question. <user_question> {{user_question}} </user_question>"
+export const IMAGE_PROMPT = "Extract ONLY the visible text content, interface elements, and key visual information from this screenshot. Be concise and focus on text that could answer: {{user_question}}. If no relevant content, respond with 'No relevant visual content found.'";

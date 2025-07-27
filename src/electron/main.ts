@@ -81,19 +81,23 @@ ipcMain.handle('get-content-protection-status', () => {
 ipcMain.handle('take-screenshot', async () => {
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width, height } = primaryDisplay.size;
+  
+  // Optimize: Reduce resolution by 50% for faster processing
+  const targetWidth = Math.floor(width * 0.5);
+  const targetHeight = Math.floor(height * 0.5);
 
   const sources = await desktopCapturer.getSources({
     types: ['screen'],
-    thumbnailSize: { width, height },
+    thumbnailSize: { width: targetWidth, height: targetHeight },
   });
 
   if (!sources.length) {
     throw new Error('No screen sources found');
   }
 
-  const screenshotPngBuffer = sources[0].thumbnail.toPNG();
-  const base64 = screenshotPngBuffer.toString('base64');
-  return `data:image/png;base64,${base64}`;
+  const screenshotJpegBuffer = sources[0].thumbnail.toJPEG(80);
+  const base64 = screenshotJpegBuffer.toString('base64');
+  return `data:image/jpeg;base64,${base64}`;
 });
 
 ipcMain.handle('move-window', (_event, dx: number = 0, dy: number = 0) => {

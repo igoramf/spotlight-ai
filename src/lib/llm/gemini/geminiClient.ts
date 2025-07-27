@@ -29,7 +29,7 @@ export class GeminiClient {
   }
 
   private getModel(vision: boolean = false) {
-    const model = vision ? "gemini-2.5-flash" : this.modelName;
+    const model = vision ? "gemini-2.0-flash-lite" : this.modelName;
     return this.genAI.getGenerativeModel({ model });
   }
 
