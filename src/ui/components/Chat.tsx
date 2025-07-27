@@ -142,12 +142,26 @@ const Chat = ({
                 </span>
               </div>
               <div className="flex justify-end items-center gap-2">
-                <Badge
-                  variant="outline"
-                  className="text-sm text-white font-medium bg-gray-700"
-                >
-                  {currentQuestion}
-                </Badge>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Badge
+                        variant="outline"
+                        className="text-sm text-white font-medium bg-gray-700 max-w-[300px] truncate cursor-default"
+                      >
+                        {currentQuestion}
+                      </Badge>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent 
+                    side="bottom" 
+                    align="end"
+                    className="max-w-[350px] break-words z-50"
+                    sideOffset={5}
+                  >
+                    <p className="text-xs">{currentQuestion}</p>
+                  </TooltipContent>
+                </Tooltip>
                 <div className="flex items-center gap-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
