@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { isDev } from './util.js';
 import fs from 'fs';
 import { LiveTranscriptionManager } from './liveTranscription.js';
+import { OpenAILiveTranscriptionManager } from './openaiLiveTranscription.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,13 +15,40 @@ const __dirname = path.dirname(__filename);
 let mainWindow: BrowserWindow | null = null;
 let contentProtectionEnabled: boolean = true;
 let transcriptionManager: LiveTranscriptionManager | null = null;
+let openaiTranscriptionManager: OpenAILiveTranscriptionManager | null = null;
 
-// Inicializar gerenciador de transcrição
 function initializeTranscription() {
   transcriptionManager = new LiveTranscriptionManager();
   console.log('Live transcription manager initialized');
 }
 
+function initializeOpenAITranscription() {
+  openaiTranscriptionManager = new OpenAILiveTranscriptionManager();
+  console.log('OpenAI Live transcription manager initialized');
+}
+
+// Usar OpenAI por padrão (você pode alternar comentando/descomentando)
+// ipcMain.handle('start-live-transcription', async (event) => {
+//   try {
+//     if (!openaiTranscriptionManager) {
+//       initializeOpenAITranscription();
+//     }
+    
+//     const sessionId = await openaiTranscriptionManager!.startSession();
+    
+//     // Registrar callback para este renderer process
+//     openaiTranscriptionManager!.registerCallback(sessionId, (result) => {
+//       event.sender.send('transcription-update', result);
+//     });
+    
+//     return { sessionId, success: true };
+//   } catch (error) {
+//     console.error('Error starting OpenAI live transcription:', error);
+//     throw error;
+//   }
+// });
+
+// Versão Gemini (comentada)
 ipcMain.handle('start-live-transcription', async (event) => {
   try {
     if (!transcriptionManager) {
@@ -43,6 +71,10 @@ ipcMain.handle('start-live-transcription', async (event) => {
 
 ipcMain.handle('stop-live-transcription', async (event, sessionId: string) => {
   try {
+    // if (openaiTranscriptionManager) {
+    //   openaiTranscriptionManager.removeCallback(sessionId);
+    // }
+    // Versão Gemini (comentada)
     if (transcriptionManager) {
       transcriptionManager.removeCallback(sessionId);
     }
@@ -56,6 +88,9 @@ ipcMain.handle('stop-live-transcription', async (event, sessionId: string) => {
 
 ipcMain.handle('send-audio-chunk', async (event, pcmData: string) => {
   try {
+    // if (openaiTranscriptionManager) {
+    //   openaiTranscriptionManager.sendAudioChunk(pcmData);
+    // }
     if (transcriptionManager) {
       transcriptionManager.sendAudioChunk(pcmData);
     }
