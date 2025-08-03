@@ -81,12 +81,11 @@ export const useDynamicInsights = (currentTranscription: string, isRecording: bo
         imageType
       );
 
-      const azureClient = new AzureOpenAIClient('gpt-4.1');
       const prompt = INSIGHTS_PROMPT
         .replace('{{screen_content}}', screenContent || 'No screen content detected')
         .replace('{{transcription}}', currentTranscription || 'No transcription available');
 
-      const response = await azureClient.createChatCompletion(prompt);
+      const response = await geminiClient.createChatCompletion(prompt);
       
       if (!response) {
         setInsights(prev => ({ ...prev, isAnalyzing: false }));

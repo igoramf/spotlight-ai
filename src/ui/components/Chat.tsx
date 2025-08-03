@@ -6,11 +6,11 @@ import { Badge } from './ui/badge';
 import { Conversation } from '../types';
 import { useToast } from '../hooks/use-toast';
 import { Tooltip, TooltipTrigger, TooltipContent } from './ui/tooltip';
-import { AzureOpenAIClient } from '../../lib/llm/openai/azureClient';
 import { buildPrompt } from '../../lib/prompt/promptBuilder';
 import { cn } from '../lib/utils';
 import { useScreenshot } from '../hooks/useScreenshot';
 import { WebSearchService } from '../../lib/webSearch';
+import { GeminiClient } from '../../lib/llm/gemini/geminiClient';
 
 const AnimatedDots = () => {
   return (
@@ -117,8 +117,8 @@ const Chat = ({
         }
       }
 
-      const modelName = isSmartMode ? 'o3' : 'gpt-4.1';
-      const client = new AzureOpenAIClient(modelName);
+      const modelName = isSmartMode ? 'gemini-2.5-flash' : 'gemini-2.5-pro';
+      const client = new GeminiClient(modelName);
       
       const conversationHistory = conversation_history
         .filter((c) => c.question && c.response)
