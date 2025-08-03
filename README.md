@@ -4,11 +4,11 @@
   <img src="app-photo.png" alt="Spotlight AI Desktop Application Interface" width="600" />
 </div>
 
-> **The ultimate desktop AI companion that can see everything on your screen, hear everything you say, and search the web for you in real-time.**
+> **The desktop AI companion that can see everything on your screen, hear everything you say, and search the web for you in real-time.**
 
 ## 🌟 What Makes Spotlight AI Special?
 
-Spotlight AI is a powerful desktop assistant that combines **computer vision**, **real-time speech recognition**, and **web search capabilities** to create an AI that truly understands your context and can help you with anything you're working on.
+Spotlight AI is a  desktop assistant that combines **computer vision**, **real-time speech recognition**, and **web search capabilities** to create an AI that truly understands your context and can help you with anything you're working on.
 
 ## 🚀 Key Features
 
@@ -30,16 +30,6 @@ Spotlight AI is a powerful desktop assistant that combines **computer vision**, 
 - **Web search integration** via Serper API
 - **Contextual search results** that enhance AI responses
 
-## 🛠️ Technology Stack
-
-- **Frontend**: React + TypeScript + Tailwind CSS
-- **Desktop**: Electron for cross-platform desktop app
-- **AI Models**: 
-  - **Vision**: Google Gemini 2.5 Flash/Pro
-  - **Language**: Gemini for contextual responses
-- **Web Search**: Serper API (Google Search)
-- **UI Components**: Radix UI + shadcn/ui
-
 ## 📦 Installation & Setup
 
 ### Prerequisites
@@ -52,8 +42,6 @@ Spotlight AI is a powerful desktop assistant that combines **computer vision**, 
 
 ### System Requirements
 - **Primary Development Environment**: Ubuntu 24.04.2 LTS
-- **Kernel**: Linux 6.8.0-71-generic
-- **Architecture**: x86_64
 - **Compatibility**: May work on other Linux distributions, Windows and Mac
 
 ### Quick Start
@@ -82,25 +70,6 @@ Create a `.env` file with:
 VITE_GEMINI_API_KEY=your_gemini_api_key
 VITE_SERPER_API_KEY=your_serper_api_key
 ```
-
-## 🎯 Usage
-
-### **Starting a Session**
-1. Launch Spotlight AI
-2. Click the microphone button to start recording
-3. The AI will begin listening and seeing your screen
-4. Ask questions naturally - the AI understands your context
-
-### **Smart Interactions**
-- **"What am I working on?"** - AI analyzes your screen and speech
-- **"Help me with this code"** - AI sees your code and provides assistance
-- **"Search for the latest React updates"** - AI searches the web for you
-- **"Explain what's on my screen"** - AI describes what it sees
-
-### **Modes**
-- **Smart Mode**: AI analyzes everything for contextual help
-- **Search Mode**: AI searches the web to enhance responses
-- **Chat Mode**: Direct conversation with the AI
 
 ## 🔧 Development
 
