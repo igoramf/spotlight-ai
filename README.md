@@ -37,7 +37,6 @@ Spotlight AI is a  desktop assistant that combines **computer vision**, **real-t
 - npm or yarn
 - API keys for:
   - Google Gemini AI
-  - OpenAI (for transcription)
   - Serper API (for web search)
 
 ### System Requirements
