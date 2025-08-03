@@ -1,5 +1,9 @@
 # 🎯 Spotlight AI - Your Desktop AI Assistant That Sees, Hears, and Searches
 
+<div align="center">
+  <img src="app-photo.png" alt="Spotlight AI Desktop Application Interface" width="600" />
+</div>
+
 > **The ultimate desktop AI companion that can see everything on your screen, hear everything you say, and search the web for you in real-time.**
 
 ## 🌟 What Makes Spotlight AI Special?
