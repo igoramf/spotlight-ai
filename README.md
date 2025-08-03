@@ -6,22 +6,6 @@
 
 Spotlight AI is a powerful desktop assistant that combines **computer vision**, **real-time speech recognition**, and **web search capabilities** to create an AI that truly understands your context and can help you with anything you're working on.
 
-### 👁️ **Sees Everything You See**
-- **Real-time screen capture** and analysis
-- **Visual context understanding** - the AI can see your code, documents, images, and any content on your screen
-- **Smart screenshot analysis** using advanced vision models
-- **Contextual insights** based on what's currently visible
-
-### 🎤 **Hears Everything You Hear**
-- **Live speech transcription** with real-time processing
-- **System audio capture** - hears both your voice and system sounds
-- **Continuous listening** with intelligent noise filtering
-- **Multi-language support** for natural conversation
-
-### 🔍 **Searches the Web for You**
-- **Contextual search results** based on your current work
-- **Smart information retrieval** to enhance responses
-
 ## 🚀 Key Features
 
 ### **Smart Mode & Search Mode**
@@ -57,7 +41,6 @@ Spotlight AI is a powerful desktop assistant that combines **computer vision**, 
 ### Prerequisites
 - Node.js 18+ 
 - npm or yarn
-- **Operating System**: Developed and tested on Ubuntu Linux, but may work on other operating systems
 - API keys for:
   - Google Gemini AI
   - OpenAI (for transcription)
