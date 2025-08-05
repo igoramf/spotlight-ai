@@ -40,7 +40,6 @@ Spotlight AI offers powerful keyboard shortcuts for efficient interaction:
 | `Ctrl + X` | Show/Hide Window |
 | `Ctrl + F` | Toggle Input |
 | `Ctrl + Shift + F` | Quick Screen Analysis |
-| `Enter` | Send Message |
 
 ### **Navigation & Response Management**
 | Shortcut | Action |
