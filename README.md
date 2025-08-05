@@ -14,7 +14,7 @@ Spotlight AI is a  desktop assistant that combines **computer vision**, **real-t
 
 ### **Smart Mode & Search Mode**
 - **Smart Mode**: AI analyzes your screen + speech for contextual assistance
-- **Search Mode**: Automatically searches the web to enhance responses
+- **Search Mode**: Automatically searches the web to enhance responses  
 - **Dynamic insights**: Real-time analysis of your current context
 
 ### **Live Transcription & Analysis**
@@ -29,6 +29,37 @@ Spotlight AI is a  desktop assistant that combines **computer vision**, **real-t
 ### **Web Search Integration**
 - **Web search integration** via Serper API
 - **Contextual search results** that enhance AI responses
+
+## ⌨️ Keyboard Shortcuts & Commands
+
+Spotlight AI offers powerful keyboard shortcuts for efficient interaction:
+
+### **Main Application Controls**
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + X` | Show/Hide Window |
+| `Ctrl + F` | Toggle Input |
+| `Ctrl + Shift + F` | Quick Screen Analysis |
+| `Enter` | Send Message |
+
+### **Navigation & Response Management**
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + ↑` | Previous Conversation |
+| `Ctrl + ↓` | Next Conversation |
+| `Ctrl + R` | Clear Response |
+
+### **Window Movement**
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + ←` | Move Left |
+| `Ctrl + →` | Move Right |
+
+
+## 🎨 Custom Prompt Feature
+
+### **What is a Custom Prompt?**
+The custom prompt feature allows you to define personalized instructions that will influence how the AI responds to your questions. This prompt is automatically included in every interaction, allowing you to customize the AI's behavior, tone, and response style according to your preferences.
 
 ## 📦 Installation & Setup
 
