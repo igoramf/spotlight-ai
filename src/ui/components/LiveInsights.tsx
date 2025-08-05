@@ -100,7 +100,15 @@ const LiveInsights = ({
             
             <TabsContent value="summary" className="mt-3">
               <div className="text-xs text-gray-300 bg-gray-800/50 rounded-md p-3 leading-relaxed">
-                {dynamicInsights.isAnalyzing ? "Analyzing screen and transcription..." : dynamicInsights.summary}
+                {dynamicInsights.summary}
+                {dynamicInsights.isAnalyzing && (
+                  <div className="mt-2 pt-2 border-t border-gray-700">
+                    <div className="flex items-center gap-2 text-blue-400">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                      <span className="text-xs">Updating insights...</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
             

@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
-import { Settings, Eye, EyeOff, Mic, AudioLinesIcon, Loader2 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Settings, Eye, EyeOff, Mic, AudioLinesIcon, Loader2, Brain, BrainCircuit, ChevronDown } from 'lucide-react';
 import Chat from './Chat';
 import { Conversation } from '../types';
 import SettingsInterface from './SettingsInterface';
@@ -12,6 +13,7 @@ import { useAudioRecording } from '../hooks/useAudioRecording';
 const CluelyInterface = () => {
   const [timer, setTimer] = useState('00:00');
   const [showHide, setShowHide] = useState(false);
+  const [showLiveInsights, setShowLiveInsights] = useState(false);
   const [showChat, setShowChat] = useState(true);
   const [showInput, setShowInput] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -178,16 +180,57 @@ const CluelyInterface = () => {
           <CardContent className="p-1">
             <div className="flex items-center justify-between">       
               <div className="flex items-center gap-1">
-                <Button
-                  variant={isRecording ? 'default' : 'outline'}
-                  size="xs"
-                  className="flex items-center gap-1 text-gray-300 border-gray-600 h-8 px-2"
-                  onClick={toggleRecording}
-                  disabled={isConnecting}
-                  aria-label={isRecording ? 'Stop recording' : 'Start recording'}
-                >
-                  {getListenButtonContent()}
-                </Button>
+                {isRecording ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="default"
+                        size="xs"
+                        className="flex items-center gap-1 text-gray-300 border-gray-600 h-8 px-2"
+                        disabled={isConnecting}
+                      >
+                        {getListenButtonContent()}
+                        <ChevronDown className="w-3 h-3 ml-1" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="bg-gray-800 border-gray-700">
+                      <DropdownMenuItem 
+                        onClick={toggleRecording}
+                        className="text-gray-300 hover:bg-gray-700 focus:bg-gray-700"
+                      >
+                        <Mic className="w-4 h-4 mr-2" />
+                        Stop Recording
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setShowLiveInsights(!showLiveInsights)}
+                        className="text-gray-300 hover:bg-gray-700 focus:bg-gray-700"
+                      >
+                        {showLiveInsights ? (
+                          <>
+                            <BrainCircuit className="w-4 h-4 mr-2" />
+                            Hide Live Insights
+                          </>
+                        ) : (
+                          <>
+                            <Brain className="w-4 h-4 mr-2" />
+                            Show Live Insights
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    className="flex items-center gap-1 text-gray-300 border-gray-600 h-8 px-2"
+                    onClick={toggleRecording}
+                    disabled={isConnecting}
+                    aria-label="Start recording"
+                  >
+                    {getListenButtonContent()}
+                  </Button>
+                )}
 
                 <Button 
                   variant="outline" 
@@ -211,7 +254,8 @@ const CluelyInterface = () => {
                   <span className="ml-2 px-1.5 py-0.5 bg-gray-700 rounded text-xs text-gray-300">⌘</span>
                   <span className="ml-1 px-1.5 py-0.5 bg-gray-700 rounded text-xs text-gray-300">X</span>
                 </Button>
-                
+
+
                 <div className="relative">
                   <Button 
                     ref={settingsButtonRef}
@@ -230,15 +274,17 @@ const CluelyInterface = () => {
 
         <div className="mt-4 w-full">
           {showChat && isRecording ? (
-            <div className="grid grid-cols-[300px_1fr_300px] gap-6 w-full max-w-[1400px] mx-auto">
-              <div className="flex justify-end">
-                <LiveInsights
-                  currentTranscription={currentTranscription}
-                  isRecording={isRecording}
-                  isTranscribing={isTranscribing}
-                  onSendMessage={handleSendMessageFromLiveInsights}
-                />
-              </div>
+            <div className={`grid gap-6 w-full max-w-[1400px] mx-auto ${showLiveInsights ? 'grid-cols-[300px_1fr_300px]' : 'grid-cols-1'}`}>
+              {showLiveInsights && (
+                <div className="flex justify-end">
+                  <LiveInsights
+                    currentTranscription={currentTranscription}
+                    isRecording={isRecording}
+                    isTranscribing={isTranscribing}
+                    onSendMessage={handleSendMessageFromLiveInsights}
+                  />
+                </div>
+              )}
               
               <div className="flex justify-center">
                 <Chat
@@ -262,7 +308,7 @@ const CluelyInterface = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center w-full">
-              {isRecording && (
+              {isRecording && showLiveInsights && (
                 <div className="mb-4">
                   <LiveInsights
                     currentTranscription={currentTranscription}

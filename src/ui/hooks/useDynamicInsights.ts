@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { GeminiClient } from '../../lib/llm/gemini/geminiClient';
-import { AzureOpenAIClient } from '../../lib/llm/openai/azureClient';
 
 interface DynamicAction {
   icon: any;
@@ -32,9 +31,9 @@ Focus on:
 - Relevant next steps or questions
 - Only suggest actions that add real value
 
-Return only valid JSON. If no meaningful actions can be suggested, return empty array for suggested_actions.
+IMPORTANT: Return ONLY valid JSON without any markdown formatting, code blocks, or additional text. If no meaningful actions can be suggested, return empty array for suggested_actions.
 
-Example response:
+Example response (raw JSON only):
 {
   "summary": "User is viewing a code editor with JavaScript files open while discussing API integration.",
   "suggested_actions": [
@@ -43,6 +42,24 @@ Example response:
   ]
 }
 `;
+
+// Helper function to extract JSON from markdown-formatted responses
+const extractJsonFromMarkdown = (response: string): string => {
+  // Remove markdown code blocks if present
+  const jsonMatch = response.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+  if (jsonMatch) {
+    return jsonMatch[1];
+  }
+  
+  // If no markdown blocks, try to find JSON object directly
+  const directJsonMatch = response.match(/\{[\s\S]*\}/);
+  if (directJsonMatch) {
+    return directJsonMatch[0];
+  }
+  
+  // Return original response if no pattern matches
+  return response.trim();
+};
 
 export const useDynamicInsights = (currentTranscription: string, isRecording: boolean) => {
   const [insights, setInsights] = useState<DynamicInsights>({
@@ -58,6 +75,7 @@ export const useDynamicInsights = (currentTranscription: string, isRecording: bo
     if (!isRecording || insights.isAnalyzing) return;
 
     try {
+      // Set analyzing to true but preserve previous content
       setInsights(prev => ({ ...prev, isAnalyzing: true }));
 
       const screenshotBase64 = await window.electronAPI.takeScreenshot();
@@ -67,7 +85,10 @@ export const useDynamicInsights = (currentTranscription: string, isRecording: bo
       }
 
       const contextKey = `${screenshotBase64.slice(-50)}_${currentTranscription.slice(-100)}`;
-      if (contextKey === lastAnalysisRef.current) return;
+      if (contextKey === lastAnalysisRef.current) {
+        setInsights(prev => ({ ...prev, isAnalyzing: false }));
+        return;
+      }
       
       lastAnalysisRef.current = contextKey;
 
@@ -93,7 +114,9 @@ export const useDynamicInsights = (currentTranscription: string, isRecording: bo
       }
       
       try {
-        const parsedResponse = JSON.parse(response);
+        // Clean the response to extract JSON from markdown formatting
+        const cleanedResponse = extractJsonFromMarkdown(response);
+        const parsedResponse = JSON.parse(cleanedResponse);
         
         const dynamicActions = parsedResponse.suggested_actions?.map((action: any, index: number) => ({
           icon: getActionIcon(index),
@@ -101,6 +124,7 @@ export const useDynamicInsights = (currentTranscription: string, isRecording: bo
           color: getActionColor(index)
         })) || [];
 
+        // Only update content when analysis is complete
         setInsights(prev => ({
           ...prev,
           actions: dynamicActions,
@@ -110,6 +134,7 @@ export const useDynamicInsights = (currentTranscription: string, isRecording: bo
 
       } catch (parseError) {
         console.error('Failed to parse insights response:', parseError);
+        console.error('Raw response:', response);
         setInsights(prev => ({ ...prev, isAnalyzing: false }));
       }
 
