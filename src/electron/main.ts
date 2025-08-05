@@ -222,6 +222,15 @@ ipcMain.handle('delete-custom-prompt', async (_event) => {
   }
 });
 
+ipcMain.handle('quit-app', async (_event) => {
+  try {
+    app.quit();
+  } catch (error) {
+    console.error('Error quitting app:', error);
+    throw error;
+  }
+});
+
 function registerMoveShortcuts(win: BrowserWindow) {
   const step = 50;
 

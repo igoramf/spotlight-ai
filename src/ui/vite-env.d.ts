@@ -26,5 +26,6 @@ interface Window {
     saveCustomPrompt: (prompt: string) => Promise<{ success: boolean }>;
     loadCustomPrompt: () => Promise<{ success: boolean; prompt: string; exists: boolean; lastUpdated?: string }>;
     deleteCustomPrompt: () => Promise<{ success: boolean }>;
+    quitApp: () => Promise<void>;
   };
 }

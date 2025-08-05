@@ -42,4 +42,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deleteCustomPrompt: (): Promise<{ success: boolean }> => {
     return ipcRenderer.invoke('delete-custom-prompt');
   },
+  quitApp: (): Promise<void> => {
+    return ipcRenderer.invoke('quit-app');
+  },
 });

@@ -107,6 +107,14 @@ const SettingsInterface = ({
     }
   };
 
+  const handleQuit = async () => {
+    try {
+      await window.electronAPI?.quitApp?.();
+    } catch (error) {
+      console.error('Error quitting app:', error);
+    }
+  };
+
   return (
     <Card className="w-[200px] bg-gray-900/95 backdrop-blur-sm border-gray-700 text-gray-300">
       <CardContent className="p-2 pt-0">
@@ -264,7 +272,7 @@ const SettingsInterface = ({
             >
               Log Out
             </Button>
-            <Button variant="destructive" size="xs" className="w-full h-7">
+            <Button variant="destructive" size="xs" className="w-full h-7" onClick={handleQuit}>
               Quit
             </Button>
           </div>
