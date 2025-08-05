@@ -6,34 +6,6 @@
 
 > **The desktop AI companion that can see everything on your screen, hear everything you say, and search the web for you in real-time.**
 
-## 🌟 What Makes Spotlight AI Special?
-
-Spotlight AI is a  desktop assistant that combines **computer vision**, **real-time speech recognition**, and **web search capabilities** to create an AI that truly understands your context and can help you with anything you're working on.
-
-## 🚀 Key Features
-
-### **Smart Mode & Search Mode**
-- **Smart Mode**: AI analyzes your screen + speech for contextual assistance
-- **Search Mode**: Automatically searches the web to enhance responses  
-- **Dynamic insights**: Real-time analysis of your current context
-
-### **Live Transcription & Analysis**
-- **Real-time speech-to-text** with Gemini
-- **System audio integration** for complete audio context
-- **Continuous conversation** with natural language processing
-
-### **Visual Intelligence**
-- **Screen content extraction** and analysis
-- **Visual context understanding** using Gemini
-
-### **Web Search Integration**
-- **Web search integration** via Serper API
-- **Contextual search results** that enhance AI responses
-
-## ⌨️ Keyboard Shortcuts & Commands
-
-Spotlight AI offers powerful keyboard shortcuts for efficient interaction:
-
 ### **Main Application Controls**
 | Shortcut | Action |
 |----------|--------|
