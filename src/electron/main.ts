@@ -162,6 +162,66 @@ ipcMain.handle('save-audio-recording', async (_event, audioData: ArrayBuffer, fi
   }
 });
 
+// Custom Prompts Storage
+const getCustomPromptsPath = () => {
+  const userDataPath = app.getPath('userData');
+  return path.join(userDataPath, 'custom-prompts.json');
+};
+
+ipcMain.handle('save-custom-prompt', async (_event, prompt: string) => {
+  try {
+    const promptsPath = getCustomPromptsPath();
+    const promptsData = {
+      customPrompt: prompt,
+      lastUpdated: new Date().toISOString()
+    };
+    
+    fs.writeFileSync(promptsPath, JSON.stringify(promptsData, null, 2));
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving custom prompt:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('load-custom-prompt', async (_event) => {
+  try {
+    const promptsPath = getCustomPromptsPath();
+    
+    if (!fs.existsSync(promptsPath)) {
+      return { success: true, prompt: '', exists: false };
+    }
+    
+    const promptsData = JSON.parse(fs.readFileSync(promptsPath, 'utf8'));
+    
+    return { 
+      success: true, 
+      prompt: promptsData.customPrompt || '', 
+      exists: true,
+      lastUpdated: promptsData.lastUpdated 
+    };
+  } catch (error) {
+    console.error('Error loading custom prompt:', error);
+    return { success: true, prompt: '', exists: false };
+  }
+});
+
+ipcMain.handle('delete-custom-prompt', async (_event) => {
+  try {
+    const promptsPath = getCustomPromptsPath();
+    
+    if (fs.existsSync(promptsPath)) {
+      fs.unlinkSync(promptsPath);
+    }
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting custom prompt:', error);
+    throw error;
+  }
+});
+
 function registerMoveShortcuts(win: BrowserWindow) {
   const step = 50;
 

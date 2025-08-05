@@ -127,9 +127,19 @@ const Chat = ({
         (conversation_history.length > 0 ? '\n\n' : '') +
         `USER: ${currentQuestion}`;
 
+      let customPromptText = 'Responda sempre em pt-br.';
+      try {
+        const customPromptResult = await window.electronAPI?.loadCustomPrompt?.();
+        if (customPromptResult?.success && customPromptResult.exists && customPromptResult.prompt.trim()) {
+          customPromptText = customPromptResult.prompt;
+        }
+      } catch (error) {
+        console.error('Error loading custom prompt:', error);
+      }
+
       const prompt = await buildPrompt({
         conversation_history: conversationHistory,
-        custom_prompt: `Responda sempre em pt-br. ${webSearchResults ? `\n\nInformações da busca na web:\n${webSearchResults}\n\nUse essas informações para enriquecer sua resposta quando relevante.` : ''}`,
+        custom_prompt: `${customPromptText}${webSearchResults ? `\n\nInformações da busca na web:\n${webSearchResults}\n\nUse essas informações para enriquecer sua resposta quando relevante.` : ''}`,
         user_screen_content: screenshotResult || '',
         live_transcription: currentTranscription || '',
       });

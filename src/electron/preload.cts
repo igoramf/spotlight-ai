@@ -32,4 +32,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   removeTranscriptionListener: () => {
     ipcRenderer.removeAllListeners('transcription-update');
   },
+  // Custom Prompts
+  saveCustomPrompt: (prompt: string): Promise<{ success: boolean }> => {
+    return ipcRenderer.invoke('save-custom-prompt', prompt);
+  },
+  loadCustomPrompt: (): Promise<{ success: boolean; prompt: string; exists: boolean; lastUpdated?: string }> => {
+    return ipcRenderer.invoke('load-custom-prompt');
+  },
+  deleteCustomPrompt: (): Promise<{ success: boolean }> => {
+    return ipcRenderer.invoke('delete-custom-prompt');
+  },
 });

@@ -16,5 +16,15 @@ interface Window {
     getContentProtectionStatus: () => Promise<boolean>;
     takeScreenshot: () => Promise<string>;
     moveWindow: (dx: number, dy: number) => Promise<void>;
+    saveAudioRecording: (audioData: ArrayBuffer, filename: string) => Promise<{ success: boolean; filePath: string }>;
+    startLiveTranscription: () => Promise<{ sessionId: string; success: boolean }>;
+    stopLiveTranscription: (sessionId: string) => Promise<{ success: boolean }>;
+    sendAudioChunk: (pcmData: string) => Promise<{ success: boolean }>;
+    onTranscriptionUpdate: (callback: Function) => void;
+    removeTranscriptionListener: () => void;
+    // Custom Prompts
+    saveCustomPrompt: (prompt: string) => Promise<{ success: boolean }>;
+    loadCustomPrompt: () => Promise<{ success: boolean; prompt: string; exists: boolean; lastUpdated?: string }>;
+    deleteCustomPrompt: () => Promise<{ success: boolean }>;
   };
 }
