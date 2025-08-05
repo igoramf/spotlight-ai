@@ -118,6 +118,22 @@ const CluelyInterface = () => {
   }, [recordingTime]);
 
   useEffect(() => {
+    const handleAutoScreenAnalysis = (event: CustomEvent) => {
+      const { question } = event.detail;
+      if (question && question.trim()) {
+        const chatEvent = new CustomEvent('directChatMessage', { detail: { question: question.trim() } });
+        window.dispatchEvent(chatEvent);
+      }
+    };
+
+    window.addEventListener('autoScreenAnalysis', handleAutoScreenAnalysis as EventListener);
+    
+    return () => {
+      window.removeEventListener('autoScreenAnalysis', handleAutoScreenAnalysis as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       
       if (event.ctrlKey && event.key === 'f') {
@@ -128,6 +144,18 @@ const CluelyInterface = () => {
           setShowChat(true);
           setShowInput(true);
         }
+      } else if (event.ctrlKey && event.shiftKey && event.key === 'F') {
+        event.preventDefault();
+        // Open chat if not visible
+        if (!showChat) {
+          setShowChat(true);
+        }
+        
+        // Trigger automatic screen analysis by dispatching a specific event
+        // that will be handled regardless of input visibility
+        const defaultQuestion = "O que você vê na tela? Descreva e analise o conteúdo visível. Se for uma pergunta apenas responda, não faça uma análise.";
+        const customEvent = new CustomEvent('autoScreenAnalysis', { detail: { question: defaultQuestion } });
+        window.dispatchEvent(customEvent);
       } else if (event.ctrlKey && event.key === 'ArrowUp') {
         event.preventDefault();
         if (conversations.length > 1) {

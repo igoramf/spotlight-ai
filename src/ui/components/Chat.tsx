@@ -68,6 +68,9 @@ const Chat = ({
     conversation?.response || null,
   );
 
+  // Check if current question is the automatic screen analysis question
+  const isAutoQuestion = currentQuestion === "O que você vê na tela? Descreva e analise o conteúdo visível. Se for uma pergunta apenas responda, não faça uma análise.";
+
   useEffect(() => {
     setCurrentQuestion(conversation?.question || null);
     setCurrentResponse(conversation?.response || null);
@@ -99,13 +102,31 @@ const Chat = ({
     await handleScreenshot(message);
   };
 
+  const handleManualSendMessage = async (message: string) => {
+    await handleSendMessage(message);
+  };
+
+  useEffect(() => {
+    const handleDirectChatMessage = (event: CustomEvent) => {
+      const { question } = event.detail;
+      if (question && question.trim()) {
+        handleSendMessage(question.trim());
+      }
+    };
+
+    window.addEventListener('directChatMessage', handleDirectChatMessage as EventListener);
+    
+    return () => {
+      window.removeEventListener('directChatMessage', handleDirectChatMessage as EventListener);
+    };
+  }, [handleSendMessage]);
+
   useEffect(() => {
     if (!isWaitingForScreenshot) return;
 
     const processAiResponse = async () => {
       let webSearchResults = '';
       
-      // Perform web search if search mode is enabled
       if (isSearchMode && currentQuestion) {
         try {
           const webSearchService = WebSearchService.getInstance();
@@ -182,26 +203,28 @@ const Chat = ({
                 </span>
               </div>
               <div className="flex justify-end items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <Badge
-                        variant="outline"
-                        className="text-sm text-white font-medium bg-gray-700 max-w-[300px] truncate cursor-default"
-                      >
-                        {currentQuestion}
-                      </Badge>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent 
-                    side="bottom" 
-                    align="end"
-                    className="max-w-[350px] break-words z-50"
-                    sideOffset={5}
-                  >
-                    <p className="text-xs">{currentQuestion}</p>
-                  </TooltipContent>
-                </Tooltip>
+                {!isAutoQuestion && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div>
+                        <Badge
+                          variant="outline"
+                          className="text-sm text-white font-medium bg-gray-700 max-w-[300px] truncate cursor-default"
+                        >
+                          {currentQuestion}
+                        </Badge>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent 
+                      side="bottom" 
+                      align="end"
+                      className="max-w-[350px] break-words z-50"
+                      sideOffset={5}
+                    >
+                      <p className="text-xs">{currentQuestion}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
                 <div className="flex items-center gap-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -246,7 +269,7 @@ const Chat = ({
       )}
       {showInput && (
         <InputCustom
-          onSendMessage={handleSendMessage}
+          onSendMessage={handleManualSendMessage}
           isLoading={isLoading || isAnalyzingScreen}
           isChatVisible={!!currentQuestion}
           onSmartModeChange={onSmartModeChange}
