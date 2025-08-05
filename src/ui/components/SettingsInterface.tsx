@@ -264,18 +264,9 @@ const SettingsInterface = ({
             {isProtected ? 'Disable Invisibility' : 'Enable Invisibility'}
           </Button>
 
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="xs"
-              className="w-full text-gray-300 border-gray-600 hover:bg-gray-700 h-7"
-            >
-              Log Out
-            </Button>
-            <Button variant="destructive" size="xs" className="w-full h-7" onClick={handleQuit}>
-              Quit
-            </Button>
-          </div>
+          <Button variant="destructive" size="xs" className="w-full h-7" onClick={handleQuit}>
+            Quit
+          </Button>
         </div>
       </CardContent>
     </Card>
