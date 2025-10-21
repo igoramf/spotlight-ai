@@ -29,7 +29,9 @@ export class GeminiClient {
   }
 
   private getModel(vision: boolean = false) {
-    const model = vision ? "gemini-2.0-flash-lite" : this.modelName;
+    // Para vision, usa sempre o modelo mais rápido e barato
+    // Para flash/pro sem vision, usa o modelo especificado
+    const model = vision ? this.modelName : this.modelName;
     return this.genAI.getGenerativeModel({ model });
   }
 
@@ -58,13 +60,36 @@ export class GeminiClient {
           mimeType: imageType,
         },
       };
-      
+
       const result = await model.generateContent([prompt, image]);
       const response = await result.response;
       return response.text();
     } catch (error) {
         console.error("Error extracting text from image:", error);
         throw error;
+    }
+  }
+
+  async createChatCompletionWithImage(
+    prompt: string,
+    imageBase64: string,
+    imageType: string
+  ) {
+    try {
+      const model = this.getModel(true);
+      const image = {
+        inlineData: {
+          data: imageBase64,
+          mimeType: imageType,
+        },
+      };
+
+      const result = await model.generateContent([prompt, image]);
+      const response = await result.response;
+      return response.text();
+    } catch (error) {
+      console.error("Error creating chat completion with image:", error);
+      throw error;
     }
   }
 
