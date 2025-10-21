@@ -13,34 +13,76 @@ interface DynamicInsights {
   isAnalyzing: boolean;
 }
 
-const INSIGHTS_PROMPT = `
-Analyze the provided screen content and live transcription to generate contextual insights.
+const INSIGHTS_PROMPT_TEMPLATE = `
+Você é um assistente inteligente que analisa reuniões em tempo real para ajudar o usuário a participar de forma mais efetiva. Você combina o conteúdo da tela (que você está vendo agora) com o que está sendo dito para entender o contexto e gerar perguntas/ações úteis.
 
-SCREEN CONTENT:
-{{screen_content}}
+## CONTEXTO
 
-LIVE TRANSCRIPTION:
+### Transcrição da Reunião (o que está sendo dito):
 {{transcription}}
 
-Provide a JSON response with:
-1. "summary": A brief 2-3 sentence summary of what's currently happening based on screen + transcription
-2. "suggested_actions": Array of 0-3 relevant action suggestions (only if truly helpful). Each action should have "text" field with clear, actionable suggestions.
+## SUA TAREFA
 
-Focus on:
-- Current context and activity
-- Relevant next steps or questions
-- Only suggest actions that add real value
+Gere uma resposta JSON com dois campos focados em AUXILIAR DURANTE REUNIÕES:
 
-IMPORTANT: Return ONLY valid JSON without any markdown formatting, code blocks, or additional text. If no meaningful actions can be suggested, return empty array for suggested_actions.
+1. **"summary"** (string):
+   - Resumo em 2-3 frases do que está acontecendo na reunião
+   - Sintetize o que você VÊ na tela + a transcrição para entender o tópico atual
+   - Foque no ASSUNTO/CONTEXTO sendo discutido
+   - Use AMBAS as fontes de informação (visual + transcrição) para gerar um resumo rico
+   - Se não houver transcrição ainda, descreva o que está visível na tela
+   - Exemplos:
+     - ✓ "Discussão sobre arquitetura de um sistema React com foco em gerenciamento de estado. Tela mostra diagrama de componentes."
+     - ✓ "Apresentação de slides sobre planejamento trimestral Q2 com métricas de vendas"
+     - ✗ "Há pessoas falando"
 
-Example response (raw JSON only):
+2. **"suggested_actions"** (array de objetos):
+   - SEMPRE gere 3-4 sugestões úteis para reuniões
+   - Cada objeto: {"text": "Pergunta ou ação específica"}
+   - Tipos de sugestões IDEAIS para reuniões:
+     * Perguntas de esclarecimento sobre o tópico atual
+     * Pedidos para aprofundar em pontos específicos
+     * Sugestões de tópicos relacionados
+     * Solicitações de exemplos práticos
+     * Pedidos para resumir ou recapitular
+   - Exemplos de BOAS sugestões:
+     - ✓ "Peça para esclarecer como isso afeta o cronograma do projeto"
+     - ✓ "Sugira uma discussão sobre alternativas para essa abordagem"
+     - ✓ "Pergunte sobre exemplos práticos de uso dessa solução"
+     - ✓ "Solicite um resumo dos pontos principais discutidos até agora"
+     - ✓ "Pergunte sobre os próximos passos e responsáveis"
+   - Evite sugestões genéricas como "Peça ajuda" ou "Tire dúvidas"
+
+## CRITÉRIOS DE QUALIDADE
+
+### Requisitos do Summary:
+- Analise o que você VÊ na imagem da tela E a transcrição fornecida
+- Integre informações VISUAIS (slides, documentos, apps) com o que está sendo DITO
+- Descreva o TÓPICO/ASSUNTO sendo discutido de forma contextualizada
+- Seja conciso mas informativo (máximo 3 frases)
+- Use presente do indicativo
+
+### Requisitos das Ações Sugeridas:
+- Devem ser ESPECÍFICAS ao contexto atual
+- Devem ser ACIONÁVEIS imediatamente (o usuário pode falar/perguntar)
+- Prefira PERGUNTAS que o usuário possa fazer na reunião
+- SEMPRE gere pelo menos 3 sugestões relevantes
+- Foque em ajudar o usuário a participar ativamente
+
+## FORMATO DE SAÍDA
+
+Retorne APENAS JSON puro - sem markdown, sem blocos de código, sem texto extra:
+
 {
-  "summary": "User is viewing a code editor with JavaScript files open while discussing API integration.",
+  "summary": "Descrição do que está sendo discutido",
   "suggested_actions": [
-    {"text": "Review API documentation for the mentioned endpoints"},
-    {"text": "Explain the current code structure and patterns"}
+    {"text": "Primeira pergunta/ação específica"},
+    {"text": "Segunda pergunta/ação específica"},
+    {"text": "Terceira pergunta/ação específica"}
   ]
 }
+
+IMPORTANTE: SEMPRE gere pelo menos 3 suggested_actions relevantes ao contexto.
 `;
 
 // Helper function to extract JSON from markdown-formatted responses
@@ -64,15 +106,24 @@ const extractJsonFromMarkdown = (response: string): string => {
 export const useDynamicInsights = (currentTranscription: string, isRecording: boolean) => {
   const [insights, setInsights] = useState<DynamicInsights>({
     actions: [],
-    summary: "Start recording to see live insights and summaries of your conversation.",
+    summary: "Comece a gravar para ver insights ao vivo e resumos da sua reunião.",
     isAnalyzing: false
   });
-  
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const lastAnalysisRef = useRef<string>('');
 
   const analyzeContext = async () => {
-    if (!isRecording || insights.isAnalyzing) return;
+    if (!isRecording) {
+      console.log('[LiveInsights] Não está gravando, pulando análise');
+      return;
+    }
+
+    if (insights.isAnalyzing) {
+      console.log('[LiveInsights] Já está analisando, pulando');
+      return;
+    }
+
+    console.log('[LiveInsights] Iniciando análise de contexto...');
 
     try {
       // Set analyzing to true but preserve previous content
@@ -80,44 +131,49 @@ export const useDynamicInsights = (currentTranscription: string, isRecording: bo
 
       const screenshotBase64 = await window.electronAPI.takeScreenshot();
       if (!screenshotBase64) {
+        console.warn('[LiveInsights] Falha ao capturar screenshot');
         setInsights(prev => ({ ...prev, isAnalyzing: false }));
         return;
       }
 
-      const contextKey = `${screenshotBase64.slice(-50)}_${currentTranscription.slice(-100)}`;
-      if (contextKey === lastAnalysisRef.current) {
-        setInsights(prev => ({ ...prev, isAnalyzing: false }));
-        return;
-      }
-      
-      lastAnalysisRef.current = contextKey;
+      console.log('[LiveInsights] Screenshot capturado com sucesso');
 
       const geminiClient = new GeminiClient("gemini-2.5-flash");
       const base64Data = screenshotBase64.split(',')[1];
       const imageType = screenshotBase64.split(';')[0].split(':')[1];
-      
-      const screenContent = await geminiClient.extractTextFromImage(
-        "Extract all visible text, interface elements, and context from this screenshot. Be comprehensive but concise.",
+
+      // Prepara o prompt incluindo a transcrição
+      const prompt = INSIGHTS_PROMPT_TEMPLATE
+        .replace('{{transcription}}', currentTranscription || 'Nenhuma transcrição disponível ainda - analise apenas o que você vê na tela.');
+
+      console.log('[LiveInsights] Gerando insights com Gemini (imagem + transcrição)...');
+      console.log('[LiveInsights] Transcrição atual:', currentTranscription?.substring(0, 100) + '...');
+
+      // Usa createChatCompletionWithImage para enviar screenshot E prompt de uma vez
+      const response = await geminiClient.createChatCompletionWithImage(
+        prompt,
         base64Data,
         imageType
       );
 
-      const prompt = INSIGHTS_PROMPT
-        .replace('{{screen_content}}', screenContent || 'No screen content detected')
-        .replace('{{transcription}}', currentTranscription || 'No transcription available');
-
-      const response = await geminiClient.createChatCompletion(prompt);
-      
       if (!response) {
+        console.warn('[LiveInsights] Resposta vazia do Gemini');
         setInsights(prev => ({ ...prev, isAnalyzing: false }));
         return;
       }
-      
+
+      console.log('[LiveInsights] Resposta recebida:', response.substring(0, 200) + '...');
+
       try {
         // Clean the response to extract JSON from markdown formatting
         const cleanedResponse = extractJsonFromMarkdown(response);
         const parsedResponse = JSON.parse(cleanedResponse);
-        
+
+        console.log('[LiveInsights] Insights parseados com sucesso:', {
+          actionsCount: parsedResponse.suggested_actions?.length || 0,
+          hasSummary: !!parsedResponse.summary
+        });
+
         const dynamicActions = parsedResponse.suggested_actions?.map((action: any, index: number) => ({
           icon: getActionIcon(index),
           text: action.text,
@@ -132,31 +188,40 @@ export const useDynamicInsights = (currentTranscription: string, isRecording: bo
           isAnalyzing: false
         }));
 
+        console.log('[LiveInsights] State atualizado com', dynamicActions.length, 'ações');
+
       } catch (parseError) {
-        console.error('Failed to parse insights response:', parseError);
-        console.error('Raw response:', response);
+        console.error('[LiveInsights] Falha ao parsear resposta:', parseError);
+        console.error('[LiveInsights] Resposta bruta:', response);
         setInsights(prev => ({ ...prev, isAnalyzing: false }));
       }
 
     } catch (error) {
-      console.error('Error analyzing context:', error);
+      console.error('[LiveInsights] Erro ao analisar contexto:', error);
       setInsights(prev => ({ ...prev, isAnalyzing: false }));
     }
   };
 
   useEffect(() => {
     if (isRecording) {
+      console.log('[LiveInsights] Iniciando monitoramento - análise a cada 6 segundos');
+
+      // Primeira análise imediata
       analyzeContext();
-      intervalRef.current = setInterval(analyzeContext, 10000);
+
+      // Depois analisa a cada 6 segundos (mais responsivo que 10s)
+      intervalRef.current = setInterval(analyzeContext, 6000);
     } else {
+      console.log('[LiveInsights] Parando monitoramento');
+
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      
+
       setInsights({
         actions: [],
-        summary: "Start recording to see live insights and summaries of your conversation.",
+        summary: "Comece a gravar para ver insights ao vivo e resumos da sua reunião.",
         isAnalyzing: false
       });
     }
@@ -166,7 +231,7 @@ export const useDynamicInsights = (currentTranscription: string, isRecording: bo
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRecording, currentTranscription]);
+  }, [isRecording]);
 
   return insights;
 };

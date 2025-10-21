@@ -65,7 +65,7 @@ const LiveInsights = ({
   };
 
   return (
-    <div className="w-80">
+    <div className="w-80 pointer-events-auto">
       <Card className="shadow-lg bg-gray-900/95 backdrop-blur-sm border-gray-700">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -74,7 +74,7 @@ const LiveInsights = ({
               {dynamicInsights.isAnalyzing && (
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-gray-400">Analyzing...</span>
+                  <span className="text-xs text-gray-400">Analisando...</span>
                 </div>
               )}
             </div>
@@ -105,7 +105,7 @@ const LiveInsights = ({
                   <div className="mt-2 pt-2 border-t border-gray-700">
                     <div className="flex items-center gap-2 text-blue-400">
                       <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs">Updating insights...</span>
+                      <span className="text-xs">Atualizando insights...</span>
                     </div>
                   </div>
                 )}
@@ -117,8 +117,8 @@ const LiveInsights = ({
                 <div className="text-xs text-gray-300 bg-gray-800/50 p-3 leading-relaxed">
                   {currentTranscription || (
                     <div className="text-center text-gray-500">
-                      <p>No transcription available yet...</p>
-                      <p className="mt-2 text-xs">Start recording to see live transcription</p>
+                      <p>Nenhuma transcrição disponível ainda...</p>
+                      <p className="mt-2 text-xs">Comece a gravar para ver a transcrição ao vivo</p>
                     </div>
                   )}
                 </div>
@@ -128,7 +128,7 @@ const LiveInsights = ({
 
           {activeTab === 'summary' && (
             <div>
-              <h4 className="text-xs font-semibold text-gray-400 mb-3">Smart Actions</h4>
+              <h4 className="text-xs font-semibold text-gray-400 mb-3">Ações Inteligentes</h4>
               <div className="max-h-36 w-full overflow-y-auto">
                 <div className="space-y-2">
                   {actions.map((action, index) => {
