@@ -302,8 +302,8 @@ const CluelyInterface = () => {
 
         <div className="mt-4 w-full overflow-x-hidden px-4">
           {showChat && isRecording ? (
-            <div className={`grid gap-6 w-full mx-auto ${showLiveInsights ? 'grid-cols-[minmax(280px,320px)_1fr_minmax(0,320px)] max-w-[1600px]' : 'grid-cols-1 max-w-none'}`}>
-              {showLiveInsights && (
+            showLiveInsights ? (
+              <div className="grid grid-cols-[minmax(280px,320px)_1fr_minmax(0,320px)] gap-6 w-full max-w-[1600px] mx-auto">
                 <div className="flex justify-end">
                   <LiveInsights
                     currentTranscription={currentTranscription}
@@ -312,9 +312,29 @@ const CluelyInterface = () => {
                     onSendMessage={handleSendMessageFromLiveInsights}
                   />
                 </div>
-              )}
-              
-              <div className="flex justify-center">
+
+                <div className="flex justify-center">
+                  <Chat
+                    setShowChat={setShowChat}
+                    showInput={showInput}
+                    conversation={conversations[activeConversationIndex]}
+                    conversation_history={conversations}
+                    onNewConversation={handleNewConversation}
+                    onSendMessage={handleSendMessage}
+                    onMessageSent={handleMessageSent}
+                    onProcessingChange={setIsProcessing}
+                    currentTranscription={currentTranscription}
+                    isSmartMode={isSmartMode}
+                    onSmartModeChange={handleSmartModeChange}
+                    isSearchMode={isSearchMode}
+                    onSearchModeChange={handleSearchModeChange}
+                  />
+                </div>
+
+                <div></div>
+              </div>
+            ) : (
+              <div className="flex justify-center w-full">
                 <Chat
                   setShowChat={setShowChat}
                   showInput={showInput}
@@ -331,9 +351,7 @@ const CluelyInterface = () => {
                   onSearchModeChange={handleSearchModeChange}
                 />
               </div>
-              
-              <div></div>
-            </div>
+            )
           ) : (
             <div className="flex flex-col items-center w-full">
               {isRecording && showLiveInsights && (
