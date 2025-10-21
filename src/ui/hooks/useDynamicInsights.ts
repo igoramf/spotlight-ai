@@ -39,19 +39,31 @@ Gere uma resposta JSON com dois campos focados em AUXILIAR DURANTE REUNIÕES:
 2. **"suggested_actions"** (array de objetos):
    - SEMPRE gere 3-4 sugestões úteis para reuniões
    - Cada objeto: {"text": "Pergunta ou ação específica"}
-   - Tipos de sugestões IDEAIS para reuniões:
+   - Tipos de sugestões IDEAIS para reuniões (misture ambos os tipos):
+
+     **A) Perguntas para fazer NA REUNIÃO (perguntas de follow-up):**
      * Perguntas de esclarecimento sobre o tópico atual
      * Pedidos para aprofundar em pontos específicos
      * Sugestões de tópicos relacionados
      * Solicitações de exemplos práticos
      * Pedidos para resumir ou recapitular
+
+     **B) Perguntas para enviar à IA (quando não souber responder algo):**
+     * Perguntas técnicas sobre tópicos complexos mencionados
+     * Solicitações de explicações detalhadas sobre conceitos discutidos
+     * Pedidos de exemplos práticos ou comparações
+     * Perguntas sobre melhores práticas relacionadas ao tema
+
    - Exemplos de BOAS sugestões:
-     - ✓ "Peça para esclarecer como isso afeta o cronograma do projeto"
-     - ✓ "Sugira uma discussão sobre alternativas para essa abordagem"
-     - ✓ "Pergunte sobre exemplos práticos de uso dessa solução"
-     - ✓ "Solicite um resumo dos pontos principais discutidos até agora"
-     - ✓ "Pergunte sobre os próximos passos e responsáveis"
+     - ✓ "Peça para esclarecer como isso afeta o cronograma do projeto" (follow-up na reunião)
+     - ✓ "Sugira uma discussão sobre alternativas para essa abordagem" (follow-up na reunião)
+     - ✓ "Explique em detalhes como funciona OAuth 2.0" (pergunta à IA)
+     - ✓ "Compare as vantagens entre React e Vue para este projeto" (pergunta à IA)
+     - ✓ "Quais são as melhores práticas de segurança para APIs REST?" (pergunta à IA)
+     - ✓ "Solicite um resumo dos pontos principais discutidos até agora" (follow-up na reunião)
+
    - Evite sugestões genéricas como "Peça ajuda" ou "Tire dúvidas"
+   - Balance entre perguntas para a REUNIÃO (follow-up) e perguntas para a IA (quando não souber responder)
 
 ## CRITÉRIOS DE QUALIDADE
 
@@ -64,10 +76,13 @@ Gere uma resposta JSON com dois campos focados em AUXILIAR DURANTE REUNIÕES:
 
 ### Requisitos das Ações Sugeridas:
 - Devem ser ESPECÍFICAS ao contexto atual
-- Devem ser ACIONÁVEIS imediatamente (o usuário pode falar/perguntar)
-- Prefira PERGUNTAS que o usuário possa fazer na reunião
-- SEMPRE gere pelo menos 3 sugestões relevantes
-- Foque em ajudar o usuário a participar ativamente
+- Devem ser ACIONÁVEIS imediatamente
+- Misture DOIS tipos de ações:
+  * Perguntas de follow-up para fazer NA REUNIÃO (começam com "Peça...", "Pergunte...", "Solicite...")
+  * Perguntas diretas para enviar à IA (começam direto com o assunto, ex: "Explique...", "Compare...", "Quais são...")
+- SEMPRE gere pelo menos 3-4 sugestões relevantes
+- Balance: idealmente 2 perguntas para reunião + 2 perguntas para a IA
+- Foque em ajudar o usuário a participar ativamente E ter respostas prontas
 
 ## FORMATO DE SAÍDA
 
