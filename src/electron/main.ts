@@ -27,58 +27,58 @@ function initializeOpenAITranscription() {
   console.log('OpenAI Live transcription manager initialized');
 }
 
-// Usar OpenAI por padrão (você pode alternar comentando/descomentando)
-// ipcMain.handle('start-live-transcription', async (event) => {
-//   try {
-//     if (!openaiTranscriptionManager) {
-//       initializeOpenAITranscription();
-//     }
-    
-//     const sessionId = await openaiTranscriptionManager!.startSession();
-    
-//     // Registrar callback para este renderer process
-//     openaiTranscriptionManager!.registerCallback(sessionId, (result) => {
-//       event.sender.send('transcription-update', result);
-//     });
-    
-//     return { sessionId, success: true };
-//   } catch (error) {
-//     console.error('Error starting OpenAI live transcription:', error);
-//     throw error;
-//   }
-// });
-
-// Versão Gemini (comentada)
+// Usar OpenAI por padrão
 ipcMain.handle('start-live-transcription', async (event) => {
   try {
-    if (!transcriptionManager) {
-      initializeTranscription();
+    if (!openaiTranscriptionManager) {
+      initializeOpenAITranscription();
     }
-    
-    const sessionId = await transcriptionManager!.startSession();
-    
+
+    const sessionId = await openaiTranscriptionManager!.startSession();
+
     // Registrar callback para este renderer process
-    transcriptionManager!.registerCallback(sessionId, (result) => {
+    openaiTranscriptionManager!.registerCallback(sessionId, (result) => {
       event.sender.send('transcription-update', result);
     });
-    
+
     return { sessionId, success: true };
   } catch (error) {
-    console.error('Error starting live transcription:', error);
+    console.error('Error starting OpenAI live transcription:', error);
     throw error;
   }
 });
 
+// Versão Gemini (comentada)
+// ipcMain.handle('start-live-transcription', async (event) => {
+//   try {
+//     if (!transcriptionManager) {
+//       initializeTranscription();
+//     }
+
+//     const sessionId = await transcriptionManager!.startSession();
+
+//     // Registrar callback para este renderer process
+//     transcriptionManager!.registerCallback(sessionId, (result) => {
+//       event.sender.send('transcription-update', result);
+//     });
+
+//     return { sessionId, success: true };
+//   } catch (error) {
+//     console.error('Error starting live transcription:', error);
+//     throw error;
+//   }
+// });
+
 ipcMain.handle('stop-live-transcription', async (event, sessionId: string) => {
   try {
-    // if (openaiTranscriptionManager) {
-    //   openaiTranscriptionManager.removeCallback(sessionId);
-    // }
-    // Versão Gemini (comentada)
-    if (transcriptionManager) {
-      transcriptionManager.removeCallback(sessionId);
+    if (openaiTranscriptionManager) {
+      openaiTranscriptionManager.removeCallback(sessionId);
     }
-    
+    // Versão Gemini (comentada)
+    // if (transcriptionManager) {
+    //   transcriptionManager.removeCallback(sessionId);
+    // }
+
     return { success: true };
   } catch (error) {
     console.error('Error stopping live transcription:', error);
@@ -88,12 +88,12 @@ ipcMain.handle('stop-live-transcription', async (event, sessionId: string) => {
 
 ipcMain.handle('send-audio-chunk', async (event, pcmData: string) => {
   try {
-    // if (openaiTranscriptionManager) {
-    //   openaiTranscriptionManager.sendAudioChunk(pcmData);
-    // }
-    if (transcriptionManager) {
-      transcriptionManager.sendAudioChunk(pcmData);
+    if (openaiTranscriptionManager) {
+      openaiTranscriptionManager.sendAudioChunk(pcmData);
     }
+    // if (transcriptionManager) {
+    //   transcriptionManager.sendAudioChunk(pcmData);
+    // }
     return { success: true };
   } catch (error) {
     console.error('Error sending audio chunk:', error);
@@ -247,7 +247,7 @@ function registerMoveShortcuts(win: BrowserWindow) {
 
 app.on('ready', () => {
   console.log('App ready - initializing services...');
-  initializeTranscription();
+  initializeOpenAITranscription();
 
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
@@ -307,8 +307,8 @@ app.on('ready', () => {
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
-  if (transcriptionManager) {
-    transcriptionManager.close();
+  if (openaiTranscriptionManager) {
+    openaiTranscriptionManager.close();
   }
 });
 
