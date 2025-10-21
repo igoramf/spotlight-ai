@@ -3,15 +3,17 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { 
-  MessageSquare, 
-  Globe, 
-  HelpCircle, 
-  BookOpen, 
-  MapPin, 
-  Building2, 
-  Lightbulb, 
-  Brain 
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import {
+  MessageSquare,
+  Globe,
+  HelpCircle,
+  BookOpen,
+  MapPin,
+  Building2,
+  Lightbulb,
+  Brain,
+  Info
 } from 'lucide-react';
 import { useDynamicInsights } from '../hooks/useDynamicInsights';
 
@@ -45,11 +47,9 @@ const LiveInsights = ({
     return iconMap[iconName] || HelpCircle;
   };
   
-  // Static fallback actions when no dynamic actions are available
+  // Static fallback actions when no dynamic actions are available (only follow-up suggestions)
   const staticActions = [
-    { icon: Lightbulb, text: "Give me help with productivity", color: "bg-yellow-500" },
-    { icon: HelpCircle, text: "Suggest follow-up questions", color: "bg-blue-500" },
-    { icon: Brain, text: "Think of another question", color: "bg-purple-500" }
+    { icon: HelpCircle, text: "Sugira perguntas de follow-up relevantes", color: "bg-blue-500" }
   ];
 
 
@@ -128,24 +128,60 @@ const LiveInsights = ({
 
           {activeTab === 'summary' && (
             <div>
-              <h4 className="text-xs font-semibold text-gray-400 mb-3">Ações Inteligentes</h4>
+              <div className="flex items-center gap-2 mb-3">
+                <h4 className="text-xs font-semibold text-gray-400">Ações Inteligentes</h4>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-3 h-3 text-gray-500 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-[250px] bg-gray-800 border-gray-700">
+                    <p className="text-xs text-gray-200 mb-2 font-semibold">Dois tipos de ações:</p>
+                    <p className="text-xs text-gray-300 mb-1">
+                      <span className="text-blue-400">•</span> <strong>Follow-up:</strong> Perguntas para fazer na reunião
+                    </p>
+                    <p className="text-xs text-gray-300">
+                      <span className="text-green-400">•</span> <strong>Consulta à IA:</strong> Perguntas para enviar ao chat quando não souber responder
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <div className="max-h-36 w-full overflow-y-auto">
                 <div className="space-y-2">
                   {actions.map((action, index) => {
                     const IconComponent = action.icon;
+                    // Detecta se é pergunta para reunião (começa com verbos de ação)
+                    const isMeetingQuestion = /^(Peça|Pergunte|Solicite|Sugira)/i.test(action.text);
+
                     return (
-                      <button
-                        key={index}
-                        onClick={() => handleActionClick(action.text)}
-                        className="w-full flex items-center gap-3 p-2 hover:bg-gray-800/60 rounded-md text-left transition-all duration-200 group border border-transparent hover:border-gray-600"
-                      >
-                        <div className={`w-4 h-4 rounded-full ${action.color} flex items-center justify-center flex-shrink-0`}>
-                          <IconComponent className="w-2.5 h-2.5 text-white" />
-                        </div>
-                        <span className="text-xs text-gray-300 group-hover:text-white transition-colors leading-tight">
-                          {action.text}
-                        </span>
-                      </button>
+                      <Tooltip key={index}>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => handleActionClick(action.text)}
+                            className="w-full flex items-center gap-3 p-2 hover:bg-gray-800/60 rounded-md text-left transition-all duration-200 group border border-transparent hover:border-gray-600"
+                          >
+                            <div className={`w-4 h-4 rounded-full ${action.color} flex items-center justify-center flex-shrink-0`}>
+                              <IconComponent className="w-2.5 h-2.5 text-white" />
+                            </div>
+                            <span className="text-xs text-gray-300 group-hover:text-white transition-colors leading-tight">
+                              {action.text}
+                            </span>
+                            {isMeetingQuestion ? (
+                              <MessageSquare className="w-3 h-3 text-blue-400/60 ml-auto flex-shrink-0" />
+                            ) : (
+                              <Brain className="w-3 h-3 text-green-400/60 ml-auto flex-shrink-0" />
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="bg-gray-800 border-gray-700">
+                          <p className="text-xs text-gray-200">
+                            {isMeetingQuestion ? (
+                              <span><span className="text-blue-400">💬</span> Fale na reunião</span>
+                            ) : (
+                              <span><span className="text-green-400">🤖</span> Enviar ao chat da IA</span>
+                            )}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
                     );
                   })}
                 </div>
