@@ -10,9 +10,10 @@ interface InputCustomProps {
     isChatVisible?: boolean;
     onSmartModeChange?: (isSmartMode: boolean) => void;
     onSearchModeChange?: (isSearchMode: boolean) => void;
+    isExpanded?: boolean;
   }
 
-const InputCustom = ({ onSendMessage, isLoading, isChatVisible, onSmartModeChange, onSearchModeChange }: InputCustomProps) => {
+const InputCustom = ({ onSendMessage, isLoading, isChatVisible, onSmartModeChange, onSearchModeChange, isExpanded = false }: InputCustomProps) => {
   const [message, setMessage] = useState("");
   const [isSmart, setIsSmart] = useState(false);
   const [isSearch, setIsSearch] = useState(false);
@@ -67,13 +68,13 @@ const InputCustom = ({ onSendMessage, isLoading, isChatVisible, onSmartModeChang
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full">
         {/* Input field with attached send button */}
-        <div className="relative w-[700px]">
+        <div className={`relative transition-all duration-300 ${isExpanded ? 'w-[900px]' : 'w-[700px]'}`}>
           <Input
             ref={inputRef}
             placeholder="Ask about your screen"
-            className={`shadow-sm bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none pr-32 ${isChatVisible ? 'rounded-t-none' : ''}`}
+            className={`shadow-sm bg-gray-900/90 backdrop-blur-sm border-gray-700 text-white focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none pr-32 transition-all duration-300 ${isChatVisible ? 'rounded-t-none' : ''}`}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyPress}

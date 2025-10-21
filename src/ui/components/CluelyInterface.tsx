@@ -202,9 +202,9 @@ const CluelyInterface = () => {
   };
 
   return (
-    <div className="w-full min-h-screen">
+    <div className="flex justify-center pointer-events-none bg-red-500 overflow-x-hidden">
       <div className="flex flex-col items-center">
-        <Card className="shadow-sm bg-gray-900/90 backdrop-blur-sm inline-block border-gray-700">
+        <Card className="shadow-sm bg-gray-900/90 backdrop-blur-sm inline-block border-gray-700 pointer-events-auto">
           <CardContent className="p-1">
             <div className="flex items-center justify-between">       
               <div className="flex items-center gap-1">
@@ -300,9 +300,9 @@ const CluelyInterface = () => {
           </CardContent>
         </Card>
 
-        <div className="mt-4 w-full">
+        <div className="mt-4 w-full overflow-x-hidden px-4">
           {showChat && isRecording ? (
-            <div className={`grid gap-6 w-full max-w-[1400px] mx-auto ${showLiveInsights ? 'grid-cols-[300px_1fr_300px]' : 'grid-cols-1'}`}>
+            <div className={`grid gap-6 w-full mx-auto ${showLiveInsights ? 'grid-cols-[minmax(280px,320px)_1fr_minmax(0,320px)] max-w-[1600px]' : 'grid-cols-1 max-w-none'}`}>
               {showLiveInsights && (
                 <div className="flex justify-end">
                   <LiveInsights
@@ -370,12 +370,11 @@ const CluelyInterface = () => {
       </div>
       
       {showSettings && settingsButtonRef.current && createPortal(
-        <div 
-          className="fixed z-[9999999]"
+        <div
+          className="fixed z-50 pointer-events-none"
           style={{
             top: `${settingsButtonRef.current.getBoundingClientRect().bottom + 8}px`,
             right: `${window.innerWidth - settingsButtonRef.current.getBoundingClientRect().right}px`,
-            zIndex: 9999999
           }}
         >
           <SettingsInterface setShowSettings={setShowSettings} />
