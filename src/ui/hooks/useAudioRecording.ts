@@ -37,10 +37,14 @@ export const useAudioRecording = () => {
   useEffect(() => {
     const handleTranscriptionUpdate = (result: any) => {
       console.log('Transcription update:', result);
-      
+
       if (result.transcription && result.transcription !== '...') {
         setCurrentTranscription(prev => {
           const newText = result.transcription;
+          // Se for o placeholder "Listening...", substituir completamente
+          if (prev === '🎤 Listening...') {
+            return newText;
+          }
           return prev ? `${prev}\n${newText}` : newText;
         });
       }
@@ -129,7 +133,7 @@ export const useAudioRecording = () => {
         if (chunkRecorderRef.current.state === 'inactive') {
           chunkRecorderRef.current.start();
         }
-        
+
         setTimeout(() => {
           if (chunkRecorderRef.current && chunkRecorderRef.current.state === 'recording') {
             chunkRecorderRef.current.stop();
@@ -137,9 +141,9 @@ export const useAudioRecording = () => {
               if (isRecording) {
                 startChunkCycle();
               }
-            }, 100);
+            }, 50);
           }
-        }, 2000);
+        }, 500);
       }
     };
 
@@ -287,8 +291,8 @@ export const useAudioRecording = () => {
     if (isRecording) {
       stopRecording();
     } else {
+      setCurrentTranscription('🎤 Listening...');
       startRecording();
-      setCurrentTranscription('');
     }
   }, [isRecording, startRecording, stopRecording]);
 
