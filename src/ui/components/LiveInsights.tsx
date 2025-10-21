@@ -113,7 +113,7 @@ const LiveInsights = ({
             </TabsContent>
             
             <TabsContent value="transcript" className="mt-3">
-              <div className="max-h-32 w-full rounded-md border border-gray-700 overflow-y-auto">
+              <div className="max-h-56 w-full rounded-md border border-gray-700 overflow-y-auto">
                 <div className="text-xs text-gray-300 bg-gray-800/50 p-3 leading-relaxed">
                   {currentTranscription || (
                     <div className="text-center text-gray-500">
@@ -145,7 +145,7 @@ const LiveInsights = ({
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="max-h-36 w-full overflow-y-auto">
+              <div className="max-h-56 w-full overflow-y-auto">
                 <div className="space-y-2">
                   {actions.map((action, index) => {
                     const IconComponent = action.icon;
