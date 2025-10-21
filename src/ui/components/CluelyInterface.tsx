@@ -301,19 +301,45 @@ const CluelyInterface = () => {
         </Card>
 
         <div className="mt-4 w-full overflow-x-hidden px-4">
-          {showChat && isRecording ? (
-            showLiveInsights ? (
-              <div className="grid grid-cols-[minmax(280px,320px)_1fr_minmax(0,320px)] gap-6 w-full max-w-[1600px] mx-auto">
-                <div className="flex justify-end">
-                  <LiveInsights
-                    currentTranscription={currentTranscription}
-                    isRecording={isRecording}
-                    isTranscribing={isTranscribing}
-                    onSendMessage={handleSendMessageFromLiveInsights}
-                  />
-                </div>
+          {isRecording ? (
+            <>
+              {/* Caso 1: Chat aberto + LiveInsights aberto = Grid de 3 colunas */}
+              {showChat && showLiveInsights && (
+                <div className="grid grid-cols-[minmax(280px,320px)_1fr_minmax(0,320px)] gap-6 w-full max-w-[1600px] mx-auto">
+                  <div className="flex justify-end">
+                    <LiveInsights
+                      currentTranscription={currentTranscription}
+                      isRecording={isRecording}
+                      isTranscribing={isTranscribing}
+                      onSendMessage={handleSendMessageFromLiveInsights}
+                    />
+                  </div>
 
-                <div className="flex justify-center">
+                  <div className="flex justify-center">
+                    <Chat
+                      setShowChat={setShowChat}
+                      showInput={showInput}
+                      conversation={conversations[activeConversationIndex]}
+                      conversation_history={conversations}
+                      onNewConversation={handleNewConversation}
+                      onSendMessage={handleSendMessage}
+                      onMessageSent={handleMessageSent}
+                      onProcessingChange={setIsProcessing}
+                      currentTranscription={currentTranscription}
+                      isSmartMode={isSmartMode}
+                      onSmartModeChange={handleSmartModeChange}
+                      isSearchMode={isSearchMode}
+                      onSearchModeChange={handleSearchModeChange}
+                    />
+                  </div>
+
+                  <div></div>
+                </div>
+              )}
+
+              {/* Caso 2: Apenas Chat aberto (sem LiveInsights) = Chat centralizado */}
+              {showChat && !showLiveInsights && (
+                <div className="flex justify-center w-full">
                   <Chat
                     setShowChat={setShowChat}
                     showInput={showInput}
@@ -330,32 +356,11 @@ const CluelyInterface = () => {
                     onSearchModeChange={handleSearchModeChange}
                   />
                 </div>
+              )}
 
-                <div></div>
-              </div>
-            ) : (
-              <div className="flex justify-center w-full">
-                <Chat
-                  setShowChat={setShowChat}
-                  showInput={showInput}
-                  conversation={conversations[activeConversationIndex]}
-                  conversation_history={conversations}
-                  onNewConversation={handleNewConversation}
-                  onSendMessage={handleSendMessage}
-                  onMessageSent={handleMessageSent}
-                  onProcessingChange={setIsProcessing}
-                  currentTranscription={currentTranscription}
-                  isSmartMode={isSmartMode}
-                  onSmartModeChange={handleSmartModeChange}
-                  isSearchMode={isSearchMode}
-                  onSearchModeChange={handleSearchModeChange}
-                />
-              </div>
-            )
-          ) : (
-            <div className="flex flex-col items-center w-full">
-              {isRecording && showLiveInsights && (
-                <div className="mb-4">
+              {/* Caso 3: Apenas LiveInsights aberto (sem Chat) = LiveInsights centralizado */}
+              {!showChat && showLiveInsights && (
+                <div className="flex justify-center items-start w-full min-w-full">
                   <LiveInsights
                     currentTranscription={currentTranscription}
                     isRecording={isRecording}
@@ -364,7 +369,10 @@ const CluelyInterface = () => {
                   />
                 </div>
               )}
-              
+            </>
+          ) : (
+            /* Quando não está gravando, mostra chat sem recording */
+            <div className="flex flex-col items-center w-full">
               {showChat && (
                 <Chat
                   setShowChat={setShowChat}
