@@ -266,6 +266,7 @@ app.on('ready', () => {
     maxWidth: Math.floor(screenWidth * 0.98),
     maxHeight: Math.floor(screenHeight * 0.95),
     resizable: true,
+    alwaysOnTop: true,
     titleBarStyle: 'hidden',
     transparent: true,
     backgroundColor: '#00000000',

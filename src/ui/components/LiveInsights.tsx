@@ -1,8 +1,5 @@
-import { useState } from 'react';
-import { Button } from './ui/button';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader } from './ui/card';
-import { Badge } from './ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import {
   MessageSquare,
@@ -13,7 +10,10 @@ import {
   Building2,
   Lightbulb,
   Brain,
-  Info
+  Info,
+  ListChecks,
+  RotateCcw,
+  CheckCircle2
 } from 'lucide-react';
 import { useDynamicInsights } from '../hooks/useDynamicInsights';
 
@@ -24,14 +24,26 @@ interface LiveInsightsProps {
   onSendMessage: (message: string) => void;
 }
 
-const LiveInsights = ({ 
-  currentTranscription, 
-  isRecording, 
+interface TimedAction {
+  id: string;
+  text: string;
+  icon: string;
+  color: string;
+  timestamp: number;
+}
+
+const ACTION_LIFETIME_MS = 10000; // 10 seconds
+
+const LiveInsights = ({
+  currentTranscription,
+  isRecording,
   isTranscribing,
-  onSendMessage 
+  onSendMessage
 }: LiveInsightsProps) => {
-  const [activeTab, setActiveTab] = useState('summary');
   const dynamicInsights = useDynamicInsights(currentTranscription, isRecording);
+  const [timedActions, setTimedActions] = useState<TimedAction[]>([]);
+  const [, setTick] = useState(0); // Force re-render for progress bar animation
+  const actionsRef = useRef<Map<string, boolean>>(new Map());
   
 
   const getIconComponent = (iconName: string) => {
@@ -46,19 +58,95 @@ const LiveInsights = ({
     };
     return iconMap[iconName] || HelpCircle;
   };
-  
-  // Static fallback actions when no dynamic actions are available (only follow-up suggestions)
-  const staticActions = [
-    { icon: HelpCircle, text: "Sugira perguntas de follow-up relevantes", color: "bg-blue-500" }
+
+  // Fixed actions that are always available
+  const fixedActions = [
+    {
+      icon: MessageSquare,
+      text: "O que devo falar?",
+      color: "bg-purple-500",
+      description: "Sugerir resposta contextual"
+    },
+    {
+      icon: ListChecks,
+      text: "Perguntas de follow-up",
+      color: "bg-blue-500",
+      description: "Gerar perguntas para aprofundar"
+    },
+    {
+      icon: RotateCcw,
+      text: "Recapitular conversa",
+      color: "bg-amber-500",
+      description: "Resumir pontos principais"
+    },
+    {
+      icon: CheckCircle2,
+      text: "Verificar fatos mencionados",
+      color: "bg-green-500",
+      description: "Checar informações discutidas"
+    }
   ];
 
+  // Add new dynamic actions from the hook
+  useEffect(() => {
+    dynamicInsights.actions.forEach(action => {
+      const actionKey = `${action.text}-${action.icon}`;
 
-  const actions = dynamicInsights.actions.length > 0 ? 
-    dynamicInsights.actions.map(action => ({
-      ...action,
-      icon: getIconComponent(action.icon)
-    })) : 
-    staticActions;
+      // Only add if this action hasn't been seen before
+      if (!actionsRef.current.has(actionKey)) {
+        actionsRef.current.set(actionKey, true);
+
+        const newTimedAction: TimedAction = {
+          id: `${Date.now()}-${Math.random()}`,
+          text: action.text,
+          icon: action.icon,
+          color: action.color,
+          timestamp: Date.now()
+        };
+
+        setTimedActions(prev => [...prev, newTimedAction]);
+      }
+    });
+  }, [dynamicInsights.actions]);
+
+  // Remove expired actions and update progress bars
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+
+      // Remove expired actions
+      setTimedActions(prev => {
+        const updated = prev.filter(action => {
+          const age = now - action.timestamp;
+          return age < ACTION_LIFETIME_MS;
+        });
+
+        // Clean up the ref map for removed actions
+        if (updated.length < prev.length) {
+          const remainingTexts = new Set(updated.map(a => `${a.text}-${a.icon}`));
+          const newMap = new Map<string, boolean>();
+          remainingTexts.forEach(key => newMap.set(key, true));
+          actionsRef.current = newMap;
+        }
+
+        return updated;
+      });
+
+      // Force re-render to update progress bars
+      setTick(prev => prev + 1);
+    }, 1000); // Update every second
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Map timed actions to display format with icons
+  const dynamicActionsMapped = timedActions.map(action => ({
+    ...action,
+    icon: getIconComponent(action.icon),
+    age: Date.now() - action.timestamp
+  }));
+
+  const allActions = [...fixedActions.map(a => ({ ...a, isFixed: true })), ...dynamicActionsMapped.map(a => ({ ...a, isFixed: false }))];
 
   const handleActionClick = (actionText: string) => {
     onSendMessage(actionText);
@@ -80,114 +168,89 @@ const LiveInsights = ({
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="p-4 pt-0 space-y-4">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-gray-800/70 border-gray-600 h-8">
-              <TabsTrigger 
-                value="summary" 
-                className="text-xs data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-300 py-1 transition-colors"
-              >
-                📄 Summary
-              </TabsTrigger>
-              <TabsTrigger 
-                value="transcript" 
-                className="text-xs data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-300 py-1 transition-colors"
-              >
-                🎤 Transcript
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="summary" className="mt-3">
-              <div className="text-xs text-gray-300 bg-gray-800/50 rounded-md p-3 leading-relaxed">
-                {dynamicInsights.summary}
-                {dynamicInsights.isAnalyzing && (
-                  <div className="mt-2 pt-2 border-t border-gray-700">
-                    <div className="flex items-center gap-2 text-blue-400">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs">Atualizando insights...</span>
-                    </div>
+          {/* Transcription Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <h4 className="text-xs font-semibold text-gray-400">🎤 Transcrição</h4>
+              {isRecording && (
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+              )}
+            </div>
+            <div className="max-h-40 w-full rounded-md border border-gray-700 overflow-y-auto">
+              <div className="text-xs text-gray-300 bg-gray-800/50 p-3 leading-relaxed">
+                {currentTranscription || (
+                  <div className="text-center text-gray-500">
+                    <p>Nenhuma transcrição disponível ainda...</p>
+                    <p className="mt-2 text-xs">Comece a gravar para ver a transcrição ao vivo</p>
                   </div>
                 )}
               </div>
-            </TabsContent>
-            
-            <TabsContent value="transcript" className="mt-3">
-              <div className="max-h-56 w-full rounded-md border border-gray-700 overflow-y-auto">
-                <div className="text-xs text-gray-300 bg-gray-800/50 p-3 leading-relaxed">
-                  {currentTranscription || (
-                    <div className="text-center text-gray-500">
-                      <p>Nenhuma transcrição disponível ainda...</p>
-                      <p className="mt-2 text-xs">Comece a gravar para ver a transcrição ao vivo</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
 
-          {activeTab === 'summary' && (
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <h4 className="text-xs font-semibold text-gray-400">Ações Inteligentes</h4>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="w-3 h-3 text-gray-500 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-[250px] bg-gray-800 border-gray-700">
-                    <p className="text-xs text-gray-200 mb-2 font-semibold">Dois tipos de ações:</p>
-                    <p className="text-xs text-gray-300 mb-1">
-                      <span className="text-blue-400">•</span> <strong>Follow-up:</strong> Perguntas para fazer na reunião
-                    </p>
-                    <p className="text-xs text-gray-300">
-                      <span className="text-green-400">•</span> <strong>Consulta à IA:</strong> Perguntas para enviar ao chat quando não souber responder
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <div className="max-h-56 w-full overflow-y-auto">
-                <div className="space-y-2">
-                  {actions.map((action, index) => {
-                    const IconComponent = action.icon;
-                    // Detecta se é pergunta para reunião (começa com verbos de ação)
-                    const isMeetingQuestion = /^(Peça|Pergunte|Solicite|Sugira)/i.test(action.text);
+          {/* Smart Actions Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <h4 className="text-xs font-semibold text-gray-400">Ações Inteligentes</h4>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="w-3 h-3 text-gray-500 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="right" className="max-w-[250px] bg-gray-800 border-gray-700">
+                  <p className="text-xs text-gray-200 mb-2">Clique em uma ação para enviar ao chat da IA</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="max-h-64 w-full overflow-y-auto">
+              <div className="space-y-2">
+                {allActions.map((action, index) => {
+                  const IconComponent = action.icon;
+                  const isFixed = 'isFixed' in action && action.isFixed;
+                  const age = 'age' in action ? action.age : 0;
+                  const progress = isFixed ? 100 : Math.max(0, ((ACTION_LIFETIME_MS - age) / ACTION_LIFETIME_MS) * 100);
 
-                    return (
-                      <Tooltip key={index}>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={() => handleActionClick(action.text)}
-                            className="w-full flex items-center gap-3 p-2 hover:bg-gray-800/60 rounded-md text-left transition-all duration-200 group border border-transparent hover:border-gray-600"
-                          >
-                            <div className={`w-4 h-4 rounded-full ${action.color} flex items-center justify-center flex-shrink-0`}>
-                              <IconComponent className="w-2.5 h-2.5 text-white" />
-                            </div>
-                            <span className="text-xs text-gray-300 group-hover:text-white transition-colors leading-tight">
-                              {action.text}
-                            </span>
-                            {isMeetingQuestion ? (
-                              <MessageSquare className="w-3 h-3 text-blue-400/60 ml-auto flex-shrink-0" />
-                            ) : (
-                              <Brain className="w-3 h-3 text-green-400/60 ml-auto flex-shrink-0" />
-                            )}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="left" className="bg-gray-800 border-gray-700">
-                          <p className="text-xs text-gray-200">
-                            {isMeetingQuestion ? (
-                              <span><span className="text-blue-400">💬</span> Fale na reunião</span>
-                            ) : (
-                              <span><span className="text-green-400">🤖</span> Enviar ao chat da IA</span>
-                            )}
+                  return (
+                    <Tooltip key={action.id || index}>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => handleActionClick(action.text)}
+                          className="w-full flex items-center gap-3 p-2.5 hover:bg-gray-800/60 rounded-md text-left transition-all duration-200 group border border-transparent hover:border-gray-600 relative overflow-hidden"
+                        >
+                          {/* Progress bar for dynamic actions */}
+                          {!isFixed && (
+                            <div
+                              className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500/40 to-purple-500/40 transition-all duration-1000"
+                              style={{ width: `${progress}%` }}
+                            />
+                          )}
+
+                          <div className={`w-5 h-5 rounded-full ${action.color} flex items-center justify-center flex-shrink-0 relative z-10`}>
+                            <IconComponent className="w-3 h-3 text-white" />
+                          </div>
+                          <span className="text-xs text-gray-300 group-hover:text-white transition-colors leading-tight relative z-10">
+                            {action.text}
+                          </span>
+                          <Brain className="w-3 h-3 text-gray-400/60 ml-auto flex-shrink-0 group-hover:text-gray-300/80 relative z-10" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="bg-gray-800 border-gray-700">
+                        <p className="text-xs text-gray-200">
+                          {action.description || "Enviar ao chat da IA"}
+                        </p>
+                        {!isFixed && (
+                          <p className="text-xs text-gray-400 mt-1">
+                            Expira em {Math.ceil((ACTION_LIFETIME_MS - age) / 1000)}s
                           </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    );
-                  })}
-                </div>
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                })}
               </div>
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
     </div>
