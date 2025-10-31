@@ -63,7 +63,10 @@ export class LiveTranscriptionManager {
           setup: {
             model: "models/gemini-2.0-flash-exp",
             generation_config: {
-              response_modalities: ["TEXT"]
+              response_modalities: ["TEXT"],
+              speech_config: {
+                language_code: "pt-BR"
+              }
             },
             system_instruction: {
               parts: [{
